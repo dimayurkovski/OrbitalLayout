@@ -2,7 +2,7 @@
 
 OrbitalLayout is an Auto Layout DSL for Swift. It wraps `NSLayoutConstraint` directly and provides a chainable API for expressing layout constraints on iOS, tvOS, and macOS.
 
-[![Swift](https://img.shields.io/badge/Swift-5.9%2B-orange)](https://swift.org)
+[![Swift](https://img.shields.io/badge/Swift-5.10%2B-orange)](https://swift.org)
 [![Platforms](https://img.shields.io/badge/Platforms-iOS%2015%20%7C%20tvOS%2015%20%7C%20macOS%2012-blue)](https://developer.apple.com)
 [![SPM](https://img.shields.io/badge/Swift%20Package%20Manager-compatible-brightgreen)](https://swift.org/package-manager)
 [![CocoaPods](https://img.shields.io/cocoapods/v/OrbitalLayout)](https://cocoapods.org/pods/OrbitalLayout)
@@ -53,7 +53,7 @@ UIView.animate(withDuration: 0.3) { view.superview?.layoutIfNeeded() }
 | tvOS     | 15.0    |
 | macOS    | 12.0    |
 
-Swift 5.9+, Xcode 15+
+Swift 5.10+, Xcode 15+
 
 ---
 
