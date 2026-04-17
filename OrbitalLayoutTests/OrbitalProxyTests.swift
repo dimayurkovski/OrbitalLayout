@@ -313,6 +313,47 @@ struct OrbitalProxyTests {
             let constraints: [OrbitalConstraint] = proxy.layout([any OrbitalConstraintConvertible]())
             #expect(constraints.isEmpty)
         }
+
+        @Test("layout(.edges) — leading-dot group shortcut resolves without type prefix")
+        func layoutLeadingDotEdgesFlush() {
+            let (parent, child, proxy) = makeViewInHierarchy()
+            _ = parent; _ = child
+            let constraints = proxy.layout(.edges)
+            #expect(constraints.count == 4)
+            #expect(constraints.allSatisfy { $0.isActive })
+            #expect(proxy.topConstraint?.constant == 0)
+            #expect(proxy.leadingConstraint?.constant == 0)
+            #expect(proxy.bottomConstraint?.constant == 0)
+            #expect(proxy.trailingConstraint?.constant == 0)
+        }
+
+        @Test("layout(.edges(inset)) — leading-dot group shortcut with inset")
+        func layoutLeadingDotEdgesInset() {
+            let (parent, child, proxy) = makeViewInHierarchy()
+            _ = parent; _ = child
+            let constraints = proxy.layout(.edges(16))
+            #expect(constraints.count == 4)
+            #expect(constraints.allSatisfy { $0.isActive })
+            #expect(proxy.topConstraint?.constant == 16)
+            #expect(proxy.leadingConstraint?.constant == 16)
+            // bottom/trailing auto-negated
+            #expect(proxy.bottomConstraint?.constant == -16)
+            #expect(proxy.trailingConstraint?.constant == -16)
+        }
+
+        @Test("layout(.size, .center) — multiple group shortcuts via leading-dot")
+        func layoutLeadingDotMultipleGroups() {
+            let (parent, child, proxy) = makeViewInHierarchy()
+            _ = parent; _ = child
+            let constraints = proxy.layout(.size(80), .center())
+            // size → width + height (2), center → centerX + centerY (2)
+            #expect(constraints.count == 4)
+            #expect(constraints.allSatisfy { $0.isActive })
+            #expect(proxy.widthConstraint?.constant == 80)
+            #expect(proxy.heightConstraint?.constant == 80)
+            #expect(proxy.centerXConstraint?.constant == 0)
+            #expect(proxy.centerYConstraint?.constant == 0)
+        }
     }
 
     // MARK: - prepareLayout()
@@ -366,6 +407,32 @@ struct OrbitalProxyTests {
             _ = parent; _ = child
             let constraints: [OrbitalConstraint] = proxy.prepareLayout([any OrbitalConstraintConvertible]())
             #expect(constraints.isEmpty)
+        }
+
+        @Test("prepareLayout(.edges) — leading-dot group shortcut, inactive")
+        func prepareLayoutLeadingDotEdgesFlush() {
+            let (parent, child, proxy) = makeViewInHierarchy()
+            _ = parent; _ = child
+            let constraints = proxy.prepareLayout(.edges)
+            #expect(constraints.count == 4)
+            #expect(constraints.allSatisfy { !$0.isActive })
+            #expect(proxy.topConstraint?.constant == 0)
+            #expect(proxy.leadingConstraint?.constant == 0)
+            #expect(proxy.bottomConstraint?.constant == 0)
+            #expect(proxy.trailingConstraint?.constant == 0)
+        }
+
+        @Test("prepareLayout(.edges(inset)) — leading-dot group shortcut with inset, inactive")
+        func prepareLayoutLeadingDotEdgesInset() {
+            let (parent, child, proxy) = makeViewInHierarchy()
+            _ = parent; _ = child
+            let constraints = proxy.prepareLayout(.edges(10))
+            #expect(constraints.count == 4)
+            #expect(constraints.allSatisfy { !$0.isActive })
+            #expect(proxy.topConstraint?.constant == 10)
+            #expect(proxy.leadingConstraint?.constant == 10)
+            #expect(proxy.bottomConstraint?.constant == -10)
+            #expect(proxy.trailingConstraint?.constant == -10)
         }
     }
 
@@ -718,6 +785,18 @@ struct OrbitalProxyTests {
             #expect(proxy.topConstraint?.constant == 32)
             #expect(proxy.heightConstraint?.constant == 400)
         }
+
+        @Test("update(.edges(inset)) — leading-dot group shortcut updates all 4 edges")
+        func updateLeadingDotEdges() {
+            let (parent, child, proxy) = makeViewInHierarchy()
+            _ = parent; _ = child
+            proxy.layout(.top(8), .bottom(8), .leading(8), .trailing(8))
+            proxy.update(.edges(24))
+            #expect(proxy.topConstraint?.constant == 24)
+            #expect(proxy.bottomConstraint?.constant == 24)
+            #expect(proxy.leadingConstraint?.constant == 24)
+            #expect(proxy.trailingConstraint?.constant == 24)
+        }
     }
 
     // MARK: - remake() (Task 9)
@@ -823,6 +902,19 @@ struct OrbitalProxyTests {
             proxy.remake(items)
             #expect(proxy.topConstraint?.constant == 8)
             #expect(proxy.heightConstraint?.constant == 120)
+        }
+
+        @Test("remake(.edges(inset)) — leading-dot group shortcut replaces all 4 edges")
+        func remakeLeadingDotEdges() {
+            let (parent, child, proxy) = makeViewInHierarchy()
+            _ = parent; _ = child
+            proxy.layout(.top(16), .bottom(16), .leading(16), .trailing(16))
+            proxy.remake(.edges(8))
+            #expect(proxy.topConstraint?.constant == 8)
+            #expect(proxy.leadingConstraint?.constant == 8)
+            #expect(proxy.bottomConstraint?.constant == -8)
+            #expect(proxy.trailingConstraint?.constant == -8)
+            #expect(proxy.topConstraint?.isActive == true)
         }
     }
 

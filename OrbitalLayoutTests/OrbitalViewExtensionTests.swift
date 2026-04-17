@@ -182,6 +182,37 @@ struct OrbitalViewExtensionTests {
         #expect(child2.orbital.trailingConstraint != nil)
     }
 
+    @Test("orbit(child) { layout(.edges(inset)) } — leading-dot group inside closure")
+    func orbitalSingleChildEdgesInsideClosure() {
+        // Regression: `.edges(1)` inside the orbit trailing closure must resolve
+        // to OrbitalDescriptorGroup via the group variadic overload of `layout(_:)`.
+        let parent = makeParent()
+        let container = OrbitalView()
+        parent.orbit(container) {
+            container.orbital.layout(.edges(1))
+        }
+        #expect(container.superview === parent)
+        #expect(container.translatesAutoresizingMaskIntoConstraints == false)
+        #expect(container.orbital.topConstraint?.constant == 1)
+        #expect(container.orbital.leadingConstraint?.constant == 1)
+        #expect(container.orbital.bottomConstraint?.constant == -1)
+        #expect(container.orbital.trailingConstraint?.constant == -1)
+        #expect(container.orbital.topConstraint?.isActive == true)
+    }
+
+    @Test("orbit(child) { layout(.edges) } — flush leading-dot group inside closure")
+    func orbitalSingleChildEdgesFlushInsideClosure() {
+        let parent = makeParent()
+        let container = OrbitalView()
+        parent.orbit(container) {
+            container.orbital.layout(.edges)
+        }
+        #expect(container.orbital.topConstraint?.constant == 0)
+        #expect(container.orbital.bottomConstraint?.constant == 0)
+        #expect(container.orbital.leadingConstraint?.constant == 0)
+        #expect(container.orbital.trailingConstraint?.constant == 0)
+    }
+
     // MARK: - orbit([children], layout:) — array children + closure
 
     @Test("orbit(array, layout:) adds all children as subviews")

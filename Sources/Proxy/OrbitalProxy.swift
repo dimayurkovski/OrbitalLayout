@@ -239,8 +239,25 @@ public final class OrbitalProxy {
 
     /// Group-accepting overload of ``layout(_:)-variadic``.
     ///
-    /// Accepts any ``OrbitalConstraintConvertible`` — useful for passing
-    /// ``OrbitalDescriptorGroup`` values (e.g. `.edges(16)`) or a mixed array.
+    /// Enables leading-dot syntax for ``OrbitalDescriptorGroup`` shortcuts such as
+    /// `.edges`, `.edges(16)`, `.size(80)`, `.horizontal(16)`, and `.center()`.
+    ///
+    /// ```swift
+    /// view.orbital.layout(.edges(16))
+    /// view.orbital.layout(.size(80), .center())
+    /// ```
+    ///
+    /// - Parameter groups: One or more ``OrbitalDescriptorGroup`` values.
+    /// - Returns: All activated `OrbitalConstraint` instances.
+    @discardableResult
+    public func layout(_ groups: OrbitalDescriptorGroup...) -> [OrbitalConstraint] {
+        groups.flatMap { $0.asDescriptors() }.map { makeActivateStore($0) }
+    }
+
+    /// Mixed-type variadic overload of ``layout(_:)-variadic``.
+    ///
+    /// Accepts any ``OrbitalConstraintConvertible`` — useful for passing a mix of
+    /// ``OrbitalDescriptor`` and ``OrbitalDescriptorGroup`` values stored in typed variables.
     ///
     /// - Parameter items: One or more ``OrbitalConstraintConvertible`` values.
     /// - Returns: All activated `OrbitalConstraint` instances.
@@ -280,7 +297,17 @@ public final class OrbitalProxy {
         items.map { makePrepareStore($0) }
     }
 
-    /// Group-accepting overload of ``prepareLayout(_:)-variadic``.
+    /// Group overload of ``prepareLayout(_:)-variadic`` enabling leading-dot syntax for
+    /// ``OrbitalDescriptorGroup`` shortcuts such as `.edges`, `.edges(16)`, `.size(80)`.
+    ///
+    /// - Parameter groups: One or more ``OrbitalDescriptorGroup`` values.
+    /// - Returns: All created (inactive) `OrbitalConstraint` instances.
+    @discardableResult
+    public func prepareLayout(_ groups: OrbitalDescriptorGroup...) -> [OrbitalConstraint] {
+        groups.flatMap { $0.asDescriptors() }.map { makePrepareStore($0) }
+    }
+
+    /// Mixed-type variadic overload of ``prepareLayout(_:)-variadic``.
     ///
     /// - Parameter items: One or more ``OrbitalConstraintConvertible`` values.
     /// - Returns: All created (inactive) `OrbitalConstraint` instances.
@@ -549,10 +576,15 @@ extension OrbitalProxy {
         performUpdate(items)
     }
 
-    /// Group-accepting overload of ``update(_:)-variadic``.
+    /// Group overload of ``update(_:)-variadic`` enabling leading-dot syntax for
+    /// ``OrbitalDescriptorGroup`` shortcuts such as `.edges(24)`.
     ///
-    /// Accepts any ``OrbitalConstraintConvertible`` — useful for passing
-    /// ``OrbitalDescriptorGroup`` values (e.g. `.edges(24)`).
+    /// - Parameter groups: One or more ``OrbitalDescriptorGroup`` values.
+    public func update(_ groups: OrbitalDescriptorGroup...) {
+        performUpdate(groups.flatMap { $0.asDescriptors() })
+    }
+
+    /// Mixed-type variadic overload of ``update(_:)-variadic``.
     ///
     /// - Parameter items: One or more ``OrbitalConstraintConvertible`` values.
     public func update(_ items: any OrbitalConstraintConvertible...) {
@@ -632,10 +664,15 @@ extension OrbitalProxy {
         items.forEach { makeActivateStore($0) }
     }
 
-    /// Group-accepting overload of ``remake(_:)-variadic``.
+    /// Group overload of ``remake(_:)-variadic`` enabling leading-dot syntax for
+    /// ``OrbitalDescriptorGroup`` shortcuts such as `.edges(16)`.
     ///
-    /// Accepts any ``OrbitalConstraintConvertible`` — useful for passing
-    /// ``OrbitalDescriptorGroup`` values (e.g. `.edges(16)`).
+    /// - Parameter groups: One or more ``OrbitalDescriptorGroup`` values.
+    public func remake(_ groups: OrbitalDescriptorGroup...) {
+        groups.flatMap { $0.asDescriptors() }.forEach { makeActivateStore($0) }
+    }
+
+    /// Mixed-type variadic overload of ``remake(_:)-variadic``.
     ///
     /// - Parameter items: One or more ``OrbitalConstraintConvertible`` values.
     public func remake(_ items: any OrbitalConstraintConvertible...) {
