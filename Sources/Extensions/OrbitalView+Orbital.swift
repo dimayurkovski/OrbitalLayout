@@ -32,41 +32,26 @@ public extension OrbitalView {
 
 public extension OrbitalView {
 
-    /// Adds a single child view and applies inline ``OrbitalDescriptor`` constraints, using idiomatic dot-notation.
+    /// Adds a single child view and applies inline constraints.
     ///
     /// Performs the following steps in order:
     /// 1. Sets `child.translatesAutoresizingMaskIntoConstraints = false`
     /// 2. Calls `addSubview(child)`
     /// 3. Activates the given constraints relative to `self`
     ///
+    /// Accepts any mix of ``OrbitalDescriptor`` anchors and ``OrbitalDescriptorGroup``
+    /// shortcuts via leading-dot syntax:
+    ///
     /// ```swift
     /// view.orbit(label, .top(16), .leading(16), .trailing(16))
-    /// ```
-    ///
-    /// - Parameters:
-    ///   - child: The view to add as a subview.
-    ///   - first: The first ``OrbitalDescriptor`` constraint.
-    ///   - rest: Additional ``OrbitalDescriptor`` constraints.
-    @_disfavoredOverload
-    @MainActor
-    func orbit(_ child: OrbitalView, _ first: OrbitalDescriptor, _ rest: OrbitalDescriptor...) {
-        child.translatesAutoresizingMaskIntoConstraints = false
-        addSubview(child)
-        child.orbital.layout([first] + rest)
-    }
-
-    /// Variadic overload accepting group descriptors and mixed ``OrbitalConstraintConvertible`` types.
-    ///
-    /// Use when passing group shortcuts like `.edges(16)`, `.size(80)`, or `.center()`:
-    ///
-    /// ```swift
     /// view.orbit(imageView, .edges(4))
     /// view.orbit(avatarView, .size(80), .center())
+    /// view.orbit(iconView, .leading(8), .centerY(), .size(24))
     /// ```
     ///
     /// - Parameters:
     ///   - child: The view to add as a subview.
-    ///   - items: One or more ``OrbitalConstraintConvertible`` values (including group descriptors).
+    ///   - items: One or more ``OrbitalConstraintConvertible`` values.
     @MainActor
     func orbit(_ child: OrbitalView, _ items: any OrbitalConstraintConvertible...) {
         child.translatesAutoresizingMaskIntoConstraints = false
@@ -74,50 +59,14 @@ public extension OrbitalView {
         child.orbital.layout(items)
     }
 
-    /// Variadic overload for ``OrbitalDescriptorGroup`` shortcuts, enabling dot-notation without type prefix.
-    ///
-    /// Use for group shortcuts like `.edges(16)`, `.size(80)`, `.center()`, or combinations:
-    ///
-    /// ```swift
-    /// view.orbit(imageView, .edges(4))
-    /// view.orbit(avatarView, .size(80), .center())
-    /// ```
-    ///
-    /// - Parameters:
-    ///   - child: The view to add as a subview.
-    ///   - groups: One or more ``OrbitalDescriptorGroup`` values.
-    @MainActor
-    func orbit(_ child: OrbitalView, _ groups: OrbitalDescriptorGroup...) {
-        child.translatesAutoresizingMaskIntoConstraints = false
-        addSubview(child)
-        child.orbital.layout(groups)
-    }
-
     /// Array-accepting overload of ``orbit(_:_:)-variadic``.
     ///
-    /// Accepts an array of ``OrbitalDescriptor`` values, enabling idiomatic dot-notation:
+    /// Useful when the constraint list is built dynamically. Accepts descriptors and
+    /// group shortcuts in the same array.
     ///
     /// ```swift
     /// view.orbit(label, [.top(16), .leading(16), .trailing(16)])
-    /// ```
-    ///
-    /// - Parameters:
-    ///   - child: The view to add as a subview.
-    ///   - items: An array of ``OrbitalDescriptor`` values.
-    @MainActor
-    func orbit(_ child: OrbitalView, _ items: [OrbitalDescriptor]) {
-        child.translatesAutoresizingMaskIntoConstraints = false
-        addSubview(child)
-        child.orbital.layout(items)
-    }
-
-    /// Array-accepting overload supporting ``OrbitalDescriptorGroup`` values (e.g. `.edges`, `.size`, `.center`).
-    ///
-    /// Use this overload when the array contains group descriptors or a mix of types:
-    ///
-    /// ```swift
     /// view.orbit(imageView, [OrbitalDescriptor.edges(4)])
-    /// view.orbit(imageView, [OrbitalDescriptor.size(80), OrbitalDescriptor.center()])
     /// ```
     ///
     /// - Parameters:

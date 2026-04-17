@@ -1044,3 +1044,137 @@ extension OrbitalDescriptorGroup {
         OrbitalDescriptorGroup(descriptors.map { $0.labeled(id) })
     }
 }
+
+// MARK: - OrbitalConstraintConvertible leading-dot factories
+//
+// These `Self ==` protocol extensions let leading-dot syntax resolve directly
+// on `any OrbitalConstraintConvertible`, so single-anchor descriptors and
+// group shortcuts can be freely mixed in one call:
+//
+//     view.orbital.layout(.leading(8), .centerY(), .size(24))
+//     view.orbital.layout(.edges(16), .centerY())
+//
+// Without these, variadic overload resolution splits descriptors from groups
+// and a mixed argument list fails to type-check.
+
+/// Leading-dot factories that forward to ``OrbitalDescriptor``.
+public extension OrbitalConstraintConvertible where Self == OrbitalDescriptor {
+
+    // MARK: Edge anchors (zero constant)
+
+    /// Forwards to ``OrbitalDescriptor/top-swift.type.property``.
+    static var top: OrbitalDescriptor { .top }
+    /// Forwards to ``OrbitalDescriptor/bottom-swift.type.property``.
+    static var bottom: OrbitalDescriptor { .bottom }
+    /// Forwards to ``OrbitalDescriptor/leading-swift.type.property``.
+    static var leading: OrbitalDescriptor { .leading }
+    /// Forwards to ``OrbitalDescriptor/trailing-swift.type.property``.
+    static var trailing: OrbitalDescriptor { .trailing }
+    /// Forwards to ``OrbitalDescriptor/left-swift.type.property``.
+    static var left: OrbitalDescriptor { .left }
+    /// Forwards to ``OrbitalDescriptor/right-swift.type.property``.
+    static var right: OrbitalDescriptor { .right }
+
+    // MARK: Dimension anchors (zero constant)
+
+    /// Forwards to ``OrbitalDescriptor/width-swift.type.property``.
+    static var width: OrbitalDescriptor { .width }
+    /// Forwards to ``OrbitalDescriptor/height-swift.type.property``.
+    static var height: OrbitalDescriptor { .height }
+
+    // MARK: Center anchors (zero constant)
+
+    /// Forwards to ``OrbitalDescriptor/centerX-swift.type.property``.
+    static var centerX: OrbitalDescriptor { .centerX }
+    /// Forwards to ``OrbitalDescriptor/centerY-swift.type.property``.
+    static var centerY: OrbitalDescriptor { .centerY }
+
+    // MARK: Edge anchors with constants
+
+    /// Forwards to ``OrbitalDescriptor/top(_:)``.
+    static func top(_ constant: CGFloat) -> OrbitalDescriptor { .top(constant) }
+    /// Forwards to ``OrbitalDescriptor/bottom(_:)``.
+    static func bottom(_ constant: CGFloat) -> OrbitalDescriptor { .bottom(constant) }
+    /// Forwards to ``OrbitalDescriptor/leading(_:)``.
+    static func leading(_ constant: CGFloat) -> OrbitalDescriptor { .leading(constant) }
+    /// Forwards to ``OrbitalDescriptor/trailing(_:)``.
+    static func trailing(_ constant: CGFloat) -> OrbitalDescriptor { .trailing(constant) }
+    /// Forwards to ``OrbitalDescriptor/left(_:)``.
+    static func left(_ constant: CGFloat) -> OrbitalDescriptor { .left(constant) }
+    /// Forwards to ``OrbitalDescriptor/right(_:)``.
+    static func right(_ constant: CGFloat) -> OrbitalDescriptor { .right(constant) }
+
+    // MARK: Dimension anchors with constants
+
+    /// Forwards to ``OrbitalDescriptor/width(_:)``.
+    static func width(_ constant: CGFloat) -> OrbitalDescriptor { .width(constant) }
+    /// Forwards to ``OrbitalDescriptor/height(_:)``.
+    static func height(_ constant: CGFloat) -> OrbitalDescriptor { .height(constant) }
+
+    // MARK: Center anchors with offsets
+
+    /// Forwards to ``OrbitalDescriptor/centerX(_:)``.
+    static func centerX(_ offset: CGFloat = 0) -> OrbitalDescriptor { .centerX(offset) }
+    /// Forwards to ``OrbitalDescriptor/centerY(_:)``.
+    static func centerY(_ offset: CGFloat = 0) -> OrbitalDescriptor { .centerY(offset) }
+
+    // MARK: Aspect ratio
+
+    /// Forwards to ``OrbitalDescriptor/aspectRatio(_:)``.
+    static func aspectRatio(_ ratio: CGFloat) -> OrbitalDescriptor { .aspectRatio(ratio) }
+
+#if canImport(UIKit)
+    // MARK: Baseline anchors (UIKit only)
+
+    /// Forwards to ``OrbitalDescriptor/firstBaseline-swift.type.property``.
+    /// - Note: iOS and tvOS only.
+    static var firstBaseline: OrbitalDescriptor { .firstBaseline }
+    /// Forwards to ``OrbitalDescriptor/firstBaseline(_:)``.
+    /// - Note: iOS and tvOS only.
+    static func firstBaseline(_ constant: CGFloat) -> OrbitalDescriptor { .firstBaseline(constant) }
+    /// Forwards to ``OrbitalDescriptor/lastBaseline-swift.type.property``.
+    /// - Note: iOS and tvOS only.
+    static var lastBaseline: OrbitalDescriptor { .lastBaseline }
+    /// Forwards to ``OrbitalDescriptor/lastBaseline(_:)``.
+    /// - Note: iOS and tvOS only.
+    static func lastBaseline(_ constant: CGFloat) -> OrbitalDescriptor { .lastBaseline(constant) }
+#endif
+}
+
+/// Leading-dot factories that forward to ``OrbitalDescriptorGroup``.
+public extension OrbitalConstraintConvertible where Self == OrbitalDescriptorGroup {
+
+    // MARK: Edge groups
+
+    /// Forwards to ``OrbitalDescriptorGroup/edges-swift.type.property``.
+    static var edges: OrbitalDescriptorGroup { .edges }
+    /// Forwards to ``OrbitalDescriptorGroup/edges(_:)``.
+    static func edges(_ inset: CGFloat) -> OrbitalDescriptorGroup { .edges(inset) }
+
+    // MARK: Horizontal / vertical groups
+
+    /// Forwards to ``OrbitalDescriptorGroup/horizontal-swift.type.property``.
+    static var horizontal: OrbitalDescriptorGroup { .horizontal }
+    /// Forwards to ``OrbitalDescriptorGroup/horizontal(_:)``.
+    static func horizontal(_ inset: CGFloat) -> OrbitalDescriptorGroup { .horizontal(inset) }
+    /// Forwards to ``OrbitalDescriptorGroup/vertical-swift.type.property``.
+    static var vertical: OrbitalDescriptorGroup { .vertical }
+    /// Forwards to ``OrbitalDescriptorGroup/vertical(_:)``.
+    static func vertical(_ inset: CGFloat) -> OrbitalDescriptorGroup { .vertical(inset) }
+
+    // MARK: Size
+
+    /// Forwards to ``OrbitalDescriptorGroup/size(_:)``.
+    static func size(_ side: CGFloat) -> OrbitalDescriptorGroup { .size(side) }
+    /// Forwards to ``OrbitalDescriptorGroup/size(width:height:)``.
+    static func size(width: CGFloat, height: CGFloat) -> OrbitalDescriptorGroup {
+        .size(width: width, height: height)
+    }
+
+    // MARK: Center
+
+    /// Forwards to ``OrbitalDescriptorGroup/center()``.
+    static func center() -> OrbitalDescriptorGroup { .center() }
+    /// Forwards to ``OrbitalDescriptorGroup/center(offset:)``.
+    static func center(offset: CGPoint) -> OrbitalDescriptorGroup { .center(offset: offset) }
+}

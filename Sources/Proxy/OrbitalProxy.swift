@@ -230,37 +230,13 @@ public final class OrbitalProxy {
     /// )
     /// ```
     ///
-    /// - Parameter items: One or more ``OrbitalDescriptor`` values.
-    /// - Returns: All activated `OrbitalConstraint` instances, in declaration order.
-    @discardableResult
-    public func layout(_ items: OrbitalDescriptor...) -> [OrbitalConstraint] {
-        items.map { makeActivateStore($0) }
-    }
-
-    /// Group-accepting overload of ``layout(_:)-variadic``.
-    ///
-    /// Enables leading-dot syntax for ``OrbitalDescriptorGroup`` shortcuts such as
-    /// `.edges`, `.edges(16)`, `.size(80)`, `.horizontal(16)`, and `.center()`.
-    ///
-    /// ```swift
-    /// view.orbital.layout(.edges(16))
-    /// view.orbital.layout(.size(80), .center())
-    /// ```
-    ///
-    /// - Parameter groups: One or more ``OrbitalDescriptorGroup`` values.
-    /// - Returns: All activated `OrbitalConstraint` instances.
-    @discardableResult
-    public func layout(_ groups: OrbitalDescriptorGroup...) -> [OrbitalConstraint] {
-        groups.flatMap { $0.asDescriptors() }.map { makeActivateStore($0) }
-    }
-
-    /// Mixed-type variadic overload of ``layout(_:)-variadic``.
-    ///
-    /// Accepts any ``OrbitalConstraintConvertible`` — useful for passing a mix of
-    /// ``OrbitalDescriptor`` and ``OrbitalDescriptorGroup`` values stored in typed variables.
+    /// Single variadic overload handling any mix of ``OrbitalDescriptor`` anchors and
+    /// ``OrbitalDescriptorGroup`` shortcuts. Leading-dot syntax (`.top(16)`, `.edges(16)`,
+    /// `.size(80)`, `.center()`, …) resolves via protocol extensions on
+    /// ``OrbitalConstraintConvertible``.
     ///
     /// - Parameter items: One or more ``OrbitalConstraintConvertible`` values.
-    /// - Returns: All activated `OrbitalConstraint` instances.
+    /// - Returns: All activated `OrbitalConstraint` instances, in declaration order.
     @discardableResult
     public func layout(_ items: any OrbitalConstraintConvertible...) -> [OrbitalConstraint] {
         items.flatMap { $0.asDescriptors() }.map { makeActivateStore($0) }
@@ -289,25 +265,6 @@ public final class OrbitalProxy {
     /// // ... later ...
     /// constraints.activate()
     /// ```
-    ///
-    /// - Parameter items: One or more ``OrbitalDescriptor`` values.
-    /// - Returns: All created (inactive) `OrbitalConstraint` instances.
-    @discardableResult
-    public func prepareLayout(_ items: OrbitalDescriptor...) -> [OrbitalConstraint] {
-        items.map { makePrepareStore($0) }
-    }
-
-    /// Group overload of ``prepareLayout(_:)-variadic`` enabling leading-dot syntax for
-    /// ``OrbitalDescriptorGroup`` shortcuts such as `.edges`, `.edges(16)`, `.size(80)`.
-    ///
-    /// - Parameter groups: One or more ``OrbitalDescriptorGroup`` values.
-    /// - Returns: All created (inactive) `OrbitalConstraint` instances.
-    @discardableResult
-    public func prepareLayout(_ groups: OrbitalDescriptorGroup...) -> [OrbitalConstraint] {
-        groups.flatMap { $0.asDescriptors() }.map { makePrepareStore($0) }
-    }
-
-    /// Mixed-type variadic overload of ``prepareLayout(_:)-variadic``.
     ///
     /// - Parameter items: One or more ``OrbitalConstraintConvertible`` values.
     /// - Returns: All created (inactive) `OrbitalConstraint` instances.
@@ -568,25 +525,11 @@ extension OrbitalProxy {
     /// Accepts ``OrbitalConstraintConvertible``, so group descriptors work:
     /// `update(.edges(24))` updates all four edge constants at once.
     ///
-    /// - Parameter items: One or more ``OrbitalDescriptor`` values whose `constant`
-    ///   fields will be applied to matching stored constraints.
+    /// - Parameter items: One or more ``OrbitalConstraintConvertible`` values whose
+    ///   `constant` fields will be applied to matching stored constraints. Accepts
+    ///   descriptors (`.top(24)`) and group shortcuts (`.edges(24)`) interchangeably.
     /// - Note: To change anything other than `constant` (relation, priority, target anchor),
     ///   use ``remake(_:)`` instead.
-    public func update(_ items: OrbitalDescriptor...) {
-        performUpdate(items)
-    }
-
-    /// Group overload of ``update(_:)-variadic`` enabling leading-dot syntax for
-    /// ``OrbitalDescriptorGroup`` shortcuts such as `.edges(24)`.
-    ///
-    /// - Parameter groups: One or more ``OrbitalDescriptorGroup`` values.
-    public func update(_ groups: OrbitalDescriptorGroup...) {
-        performUpdate(groups.flatMap { $0.asDescriptors() })
-    }
-
-    /// Mixed-type variadic overload of ``update(_:)-variadic``.
-    ///
-    /// - Parameter items: One or more ``OrbitalConstraintConvertible`` values.
     public func update(_ items: any OrbitalConstraintConvertible...) {
         performUpdate(items.flatMap { $0.asDescriptors() })
     }
@@ -655,26 +598,12 @@ extension OrbitalProxy {
     /// contentView.orbital.remake(.top.to(navigationBar, .bottom))
     /// ```
     ///
-    /// - Parameter items: One or more ``OrbitalDescriptor`` values describing
-    ///   the constraints to replace.
+    /// - Parameter items: One or more ``OrbitalConstraintConvertible`` values describing
+    ///   the constraints to replace. Accepts descriptors (`.top(8)`) and group shortcuts
+    ///   (`.edges(16)`) interchangeably.
     /// - Note: Replaced constraints are deactivated and removed from ``ConstraintStorage``.
     ///   If previously captured by the caller, the objects remain in memory but are no longer
     ///   managed by OrbitalLayout.
-    public func remake(_ items: OrbitalDescriptor...) {
-        items.forEach { makeActivateStore($0) }
-    }
-
-    /// Group overload of ``remake(_:)-variadic`` enabling leading-dot syntax for
-    /// ``OrbitalDescriptorGroup`` shortcuts such as `.edges(16)`.
-    ///
-    /// - Parameter groups: One or more ``OrbitalDescriptorGroup`` values.
-    public func remake(_ groups: OrbitalDescriptorGroup...) {
-        groups.flatMap { $0.asDescriptors() }.forEach { makeActivateStore($0) }
-    }
-
-    /// Mixed-type variadic overload of ``remake(_:)-variadic``.
-    ///
-    /// - Parameter items: One or more ``OrbitalConstraintConvertible`` values.
     public func remake(_ items: any OrbitalConstraintConvertible...) {
         items.flatMap { $0.asDescriptors() }.forEach { makeActivateStore($0) }
     }

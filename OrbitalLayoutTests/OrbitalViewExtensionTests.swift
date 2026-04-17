@@ -213,6 +213,19 @@ struct OrbitalViewExtensionTests {
         #expect(container.orbital.trailingConstraint?.constant == 0)
     }
 
+    @Test("orbit(child, .leading(8), .centerY(), .size(24)) — mixed descriptor + group inline")
+    func orbitalChildMixedDescriptorAndGroupInline() {
+        let parent = makeParent()
+        let iconView = OrbitalView()
+        parent.orbit(iconView, .leading(8), .centerY(), .size(24))
+        #expect(iconView.superview === parent)
+        #expect(iconView.translatesAutoresizingMaskIntoConstraints == false)
+        #expect(iconView.orbital.leadingConstraint?.constant == 8)
+        #expect(iconView.orbital.centerYConstraint?.constant == 0)
+        #expect(iconView.orbital.widthConstraint?.constant == 24)
+        #expect(iconView.orbital.heightConstraint?.constant == 24)
+    }
+
     // MARK: - orbit([children], layout:) — array children + closure
 
     @Test("orbit(array, layout:) adds all children as subviews")

@@ -354,6 +354,34 @@ struct OrbitalProxyTests {
             #expect(proxy.centerXConstraint?.constant == 0)
             #expect(proxy.centerYConstraint?.constant == 0)
         }
+
+        @Test("layout(.leading(8), .centerY(), .size(24)) — mixed descriptor + group shortcuts")
+        func layoutMixedDescriptorAndGroup() {
+            // Regression: mixing single-anchor descriptors and group shortcuts in one
+            // variadic call must type-check via leading-dot on any OrbitalConstraintConvertible.
+            let (parent, child, proxy) = makeViewInHierarchy()
+            _ = parent; _ = child
+            let constraints = proxy.layout(.leading(8), .centerY(), .size(24))
+            // leading (1) + centerY (1) + size → width+height (2)
+            #expect(constraints.count == 4)
+            #expect(constraints.allSatisfy { $0.isActive })
+            #expect(proxy.leadingConstraint?.constant == 8)
+            #expect(proxy.centerYConstraint?.constant == 0)
+            #expect(proxy.widthConstraint?.constant == 24)
+            #expect(proxy.heightConstraint?.constant == 24)
+        }
+
+        @Test("layout(.edges(16), .centerY()) — group + descriptor mix, group first")
+        func layoutMixedGroupFirstThenDescriptor() {
+            let (parent, child, proxy) = makeViewInHierarchy()
+            _ = parent; _ = child
+            let constraints = proxy.layout(.edges(16), .centerY(4))
+            // edges → 4 + centerY → 1 (centerY overwrites the anchor but we asked twice on different anchors)
+            #expect(constraints.count == 5)
+            #expect(constraints.allSatisfy { $0.isActive })
+            #expect(proxy.topConstraint?.constant == 16)
+            #expect(proxy.centerYConstraint?.constant == 4)
+        }
     }
 
     // MARK: - prepareLayout()
