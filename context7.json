@@ -1,0 +1,20 @@
+{
+  "$schema": "https://context7.com/schema/context7.json",
+  "url": "https://context7.com/dimayurkovski/orbitallayout",
+  "public_key": "pk_7TyrbInyj9HOCPBrfyBia",
+  "projectTitle": "OrbitalLayout",
+  "description": "Auto Layout constraint DSL for UIKit and AppKit, similar to SnapKit and Anchorage",
+  "folders": ["Sources"],
+  "excludeFolders": ["Tests", "OrbitalLayoutTests"],
+  "excludeFiles": ["Docs/plan.md", "Docs/architecture.md"],
+  "rules": [
+    "Supports iOS 15+, tvOS 15+, macOS 12+. No watchOS, no SwiftUI.",
+    "Use the OrbitalView typealias for cross-platform code: it resolves to UIView on UIKit and NSView on AppKit.",
+    "Main entry point is the .orbital proxy on any view, e.g. view.orbital.layout(.top(16), .leading(16), .width(120)).",
+    "layout() creates and activates constraints; prepareLayout() creates them without activating; update() and remake() modify existing ones.",
+    "Trailing, bottom, and right constants are auto-negated — always pass positive insets like .trailing(16), not -16.",
+    "Use orbit(child:) to addSubview and set translatesAutoresizingMaskIntoConstraints = false in one call.",
+    "firstBaseline and lastBaseline anchors are UIKit-only and guarded at compile time — do not use them in macOS code.",
+    "OrbitalProxy, OrbitalDescriptor, ConstraintStorage, and ConstraintFactory are @MainActor — call them from the main actor."
+  ]
+}
