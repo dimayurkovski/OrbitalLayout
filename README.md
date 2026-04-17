@@ -10,7 +10,23 @@ OrbitalLayout is an Auto Layout DSL for Swift. It wraps `NSLayoutConstraint` dir
 
 ## Overview
 
-Call `orbit(_:)` to add subviews and define their constraints in one step. The closure receives a context where each child is already added to the hierarchy with `translatesAutoresizingMaskIntoConstraints` set to `false`.
+Add a subview and lay it out in a single call. `orbit` handles `addSubview`, sets `translatesAutoresizingMaskIntoConstraints = false`, and activates the constraints.
+
+Parent-side — the parent receives the child:
+
+```swift
+view.orbit(label, .top(16), .leading(16), .trailing(16))
+```
+
+Child-side — read naturally as "label is placed into `view`":
+
+```swift
+label.orbit(to: view, .top(16), .leading(16), .trailing(16))
+```
+
+Both forms are equivalent. Pick whichever reads better at the call site.
+
+For multiple subviews, pass them all and use a closure to describe the layout. Every child is already in the hierarchy before the closure runs:
 
 ```swift
 view.orbit(avatar, nameLabel, followButton) {
@@ -83,11 +99,29 @@ pod 'OrbitalLayout'
 
 ### Adding a single subview
 
+Two equivalent forms — parent-side and child-side:
+
 ```swift
+// parent-side: "view receives label"
 view.orbit(label, .top(16), .leading(16), .trailing(16))
+
+// child-side: "label is placed into view"
+label.orbit(to: view, .top(16), .leading(16), .trailing(16))
 ```
 
-Calls `addSubview`, sets `translatesAutoresizingMaskIntoConstraints = false`, and activates constraints.
+Both call `addSubview`, set `translatesAutoresizingMaskIntoConstraints = false`, and activate the given constraints.
+
+### Adding multiple subviews
+
+Pass the children and a closure. Every view is added to the hierarchy before the closure runs, so you can reference them freely inside:
+
+```swift
+view.orbit(header, content, footer) {
+    header.orbital.layout(.top(16), .leading(16), .trailing(16), .height(44))
+    content.orbital.layout(.top(8).to(header, .bottom), .leading(16), .trailing(16))
+    footer.orbital.layout(.top(8).to(content, .bottom), .leading(16), .trailing(16), .bottom(16))
+}
+```
 
 ### Constraints on an existing view
 

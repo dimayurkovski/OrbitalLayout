@@ -130,4 +130,50 @@ public extension OrbitalView {
         }
         layout()
     }
+
+    /// Adds this view as a subview of `parent` and applies inline constraints.
+    ///
+    /// Mirror of ``orbit(_:_:)-variadic`` called from the child's perspective. Performs the
+    /// following steps in order:
+    /// 1. Sets `self.translatesAutoresizingMaskIntoConstraints = false`
+    /// 2. Calls `parent.addSubview(self)`
+    /// 3. Activates the given constraints relative to `parent`
+    ///
+    /// Accepts any mix of ``OrbitalDescriptor`` anchors and ``OrbitalDescriptorGroup``
+    /// shortcuts via leading-dot syntax:
+    ///
+    /// ```swift
+    /// avatar.orbit(to: view, .top(16), .leading(16), .size(80))
+    /// imageView.orbit(to: view, .edges(4))
+    /// ```
+    ///
+    /// - Parameters:
+    ///   - parent: The view that will receive `self` as a subview.
+    ///   - items: One or more ``OrbitalConstraintConvertible`` values.
+    @MainActor
+    func orbit(to parent: OrbitalView, _ items: any OrbitalConstraintConvertible...) {
+        translatesAutoresizingMaskIntoConstraints = false
+        parent.addSubview(self)
+        orbital.layout(items)
+    }
+
+    /// Array-accepting overload of ``orbit(to:_:)-variadic``.
+    ///
+    /// Useful when the constraint list is built dynamically. Accepts descriptors and
+    /// group shortcuts in the same array.
+    ///
+    /// ```swift
+    /// avatar.orbit(to: view, [.top(16), .leading(16), .size(80)])
+    /// imageView.orbit(to: view, [OrbitalDescriptor.edges(4)])
+    /// ```
+    ///
+    /// - Parameters:
+    ///   - parent: The view that will receive `self` as a subview.
+    ///   - items: An array of ``OrbitalConstraintConvertible`` values.
+    @MainActor
+    func orbit(to parent: OrbitalView, _ items: [any OrbitalConstraintConvertible]) {
+        translatesAutoresizingMaskIntoConstraints = false
+        parent.addSubview(self)
+        orbital.layout(items)
+    }
 }

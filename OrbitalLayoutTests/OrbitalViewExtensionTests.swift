@@ -323,4 +323,95 @@ struct OrbitalViewExtensionTests {
         #expect(child.orbital.leadingConstraint?.constant == 8)
         #expect(child.orbital.trailingConstraint?.constant == -8)
     }
+
+    // MARK: - orbit(to:_:) — child-side variadic
+
+    @Test("orbit(to:_:) adds self as subview of parent")
+    func orbitToParentAddsSubview() {
+        let parent = makeParent()
+        let child = OrbitalView()
+        child.orbit(to: parent, .top(16))
+        #expect(child.superview === parent)
+    }
+
+    @Test("orbit(to:_:) disables translatesAutoresizingMaskIntoConstraints")
+    func orbitToParentDisablesTranslates() {
+        let parent = makeParent()
+        let child = OrbitalView()
+        child.translatesAutoresizingMaskIntoConstraints = true
+        child.orbit(to: parent, .top(16))
+        #expect(child.translatesAutoresizingMaskIntoConstraints == false)
+    }
+
+    @Test("orbit(to:_:) activates constraints on self")
+    func orbitToParentActivatesConstraints() {
+        let parent = makeParent()
+        let child = OrbitalView()
+        child.orbit(to: parent, .top(16), .leading(16), .trailing(16))
+        #expect(child.orbital.topConstraint?.constant == 16)
+        #expect(child.orbital.leadingConstraint?.constant == 16)
+        #expect(child.orbital.trailingConstraint?.constant == -16)
+    }
+
+    @Test("orbit(to:_:) with .size and .center creates width, height, and center constraints")
+    func orbitToParentSizeCenter() {
+        let parent = makeParent()
+        let child = OrbitalView()
+        child.orbit(to: parent, .size(80), .center())
+        #expect(child.orbital.widthConstraint?.constant == 80)
+        #expect(child.orbital.heightConstraint?.constant == 80)
+        #expect(child.orbital.centerXConstraint != nil)
+        #expect(child.orbital.centerYConstraint != nil)
+    }
+
+    // MARK: - orbit(to:_:) — child-side array
+
+    @Test("orbit(to:array) adds self as subview of parent")
+    func orbitToParentArrayAddsSubview() {
+        let parent = makeParent()
+        let child = OrbitalView()
+        child.orbit(to: parent, [.top(16), .leading(16)])
+        #expect(child.superview === parent)
+    }
+
+    @Test("orbit(to:array) disables translatesAutoresizingMaskIntoConstraints")
+    func orbitToParentArrayDisablesTranslates() {
+        let parent = makeParent()
+        let child = OrbitalView()
+        child.translatesAutoresizingMaskIntoConstraints = true
+        child.orbit(to: parent, [.top(16)])
+        #expect(child.translatesAutoresizingMaskIntoConstraints == false)
+    }
+
+    @Test("orbit(to:array) activates constraints on self")
+    func orbitToParentArrayActivatesConstraints() {
+        let parent = makeParent()
+        let child = OrbitalView()
+        child.orbit(to: parent, [.top(16), .leading(16), .trailing(16)])
+        #expect(child.orbital.topConstraint?.constant == 16)
+        #expect(child.orbital.leadingConstraint?.constant == 16)
+        #expect(child.orbital.trailingConstraint?.constant == -16)
+    }
+
+    @Test("orbit(to:array) with empty array still adds child")
+    func orbitToParentArrayEmptyStillAddsChild() {
+        let parent = makeParent()
+        let child = OrbitalView()
+        let empty: [OrbitalDescriptor] = []
+        child.orbit(to: parent, empty)
+        #expect(child.superview === parent)
+        #expect(child.translatesAutoresizingMaskIntoConstraints == false)
+    }
+
+    @Test("orbit(to:array) group descriptor via [any OrbitalConstraintConvertible]")
+    func orbitToParentArrayGroupDescriptor() {
+        let parent = makeParent()
+        let child = OrbitalView()
+        let items: [any OrbitalConstraintConvertible] = [OrbitalDescriptor.edges(8)]
+        child.orbit(to: parent, items)
+        #expect(child.orbital.topConstraint?.constant == 8)
+        #expect(child.orbital.bottomConstraint?.constant == -8)
+        #expect(child.orbital.leadingConstraint?.constant == 8)
+        #expect(child.orbital.trailingConstraint?.constant == -8)
+    }
 }
