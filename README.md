@@ -1,32 +1,12 @@
 # OrbitalLayout
 
-OrbitalLayout is an Auto Layout DSL for Swift. It wraps `NSLayoutConstraint` directly and provides a chainable API for expressing layout constraints on iOS, tvOS, and macOS.
+An Auto Layout DSL for Swift. Chainable, type-safe, wraps `NSLayoutConstraint` directly.
 
 [![Swift](https://img.shields.io/badge/Swift-5.10%2B-orange)](https://swift.org)
 [![Platforms](https://img.shields.io/badge/Platforms-iOS%2015%20%7C%20tvOS%2015%20%7C%20macOS%2012-blue)](https://developer.apple.com)
 [![SPM](https://img.shields.io/badge/Swift%20Package%20Manager-compatible-brightgreen)](https://swift.org/package-manager)
 [![CocoaPods](https://img.shields.io/cocoapods/v/OrbitalLayout)](https://cocoapods.org/pods/OrbitalLayout)
 [![License](https://img.shields.io/badge/License-MIT-lightgrey)](LICENSE)
-
-## Overview
-
-Add a subview and lay it out in a single call. `orbit` handles `addSubview`, sets `translatesAutoresizingMaskIntoConstraints = false`, and activates the constraints.
-
-Parent-side — the parent receives the child:
-
-```swift
-view.orbit(label, .top(16), .leading(16), .trailing(16))
-```
-
-Child-side — read naturally as "label is placed into `view`":
-
-```swift
-label.orbit(to: view, .top(16), .leading(16), .trailing(16))
-```
-
-Both forms are equivalent. Pick whichever reads better at the call site.
-
-For multiple subviews, pass them all and use a closure to describe the layout. Every child is already in the hierarchy before the closure runs:
 
 ```swift
 view.orbit(avatar, nameLabel, followButton) {
@@ -42,52 +22,42 @@ view.orbit(avatar, nameLabel, followButton) {
     )
     followButton.orbital.layout(
         .top(16).to(nameLabel, .bottom),
-        .leading(16),
-        .trailing(16),
+        .leading(16), .trailing(16),
         .height(44)
     )
 }
 ```
 
-Every activated constraint is stored by anchor and accessible by name, so you can reach it later without keeping your own references:
+`orbit` adds the subviews, disables autoresizing masks, and activates constraints — in one call.
 
-```swift
-view.orbital.layout(.top(16), .height(200))
-
-// Animate later
-view.orbital.heightConstraint?.constant = 300
-UIView.animate(withDuration: 0.3) { view.superview?.layoutIfNeeded() }
-```
+iOS 15+ · tvOS 15+ · macOS 12+ · Swift 5.10+ · Xcode 15+
 
 ---
 
-## Requirements
+## Contents
 
-| Platform | Minimum |
-|----------|---------|
-| iOS      | 15.0    |
-| tvOS     | 15.0    |
-| macOS    | 12.0    |
-
-Swift 5.10+, Xcode 15+
+- [Install](#install)
+- [Adding subviews](#adding-subviews)
+- [Constraints](#constraints)
+- [Stored constraints](#stored-constraints)
+- [Update & remake](#update--remake)
+- [Activate / deactivate](#activate--deactivate)
+- [Hugging & compression](#hugging--compression)
+- [Debug labels](#debug-labels)
+- [Sign convention](#sign-convention)
+- [macOS](#macos)
 
 ---
 
-## Installation
+## Install
 
-### Swift Package Manager
-
-Add to your `Package.swift`:
+**Swift Package Manager**
 
 ```swift
-dependencies: [
-    .package(url: "https://github.com/dimayurkovski/OrbitalLayout.git", from: "1.0.0")
-]
+.package(url: "https://github.com/dimayurkovski/OrbitalLayout.git", from: "1.0.0")
 ```
 
-Or in Xcode: **File → Add Package Dependencies** and enter the repository URL.
-
-### CocoaPods
+**CocoaPods**
 
 ```ruby
 pod 'OrbitalLayout'
@@ -95,155 +65,104 @@ pod 'OrbitalLayout'
 
 ---
 
-## Usage
-
-### Adding a single subview
-
-Two equivalent forms — parent-side and child-side:
+## Adding subviews
 
 ```swift
-// parent-side: "view receives label"
+// parent-side
 view.orbit(label, .top(16), .leading(16), .trailing(16))
 
-// child-side: "label is placed into view"
+// child-side — equivalent
 label.orbit(to: view, .top(16), .leading(16), .trailing(16))
-```
 
-Both call `addSubview`, set `translatesAutoresizingMaskIntoConstraints = false`, and activate the given constraints.
-
-### Adding multiple subviews
-
-Pass the children and a closure. Every view is added to the hierarchy before the closure runs, so you can reference them freely inside:
-
-```swift
+// multiple children — every view is in the hierarchy before the closure runs
 view.orbit(header, content, footer) {
     header.orbital.layout(.top(16), .leading(16), .trailing(16), .height(44))
     content.orbital.layout(.top(8).to(header, .bottom), .leading(16), .trailing(16))
     footer.orbital.layout(.top(8).to(content, .bottom), .leading(16), .trailing(16), .bottom(16))
 }
-```
 
-### Constraints on an existing view
-
-```swift
+// already in the hierarchy
 contentView.orbital.layout(
     .top(8).to(header, .bottom),
-    .leading(16),
-    .trailing(16),
+    .leading(16), .trailing(16),
     .height(200)
 )
 ```
 
 ---
 
-## API
-
-### Edge shortcuts
+## Constraints
 
 ```swift
+// edges
 view.orbital.layout(.edges(16))          // all 4 sides
 view.orbital.layout(.horizontal(16))     // leading + trailing
 view.orbital.layout(.vertical(24))       // top + bottom
-```
 
-### Size shortcuts
-
-```swift
+// size
 iconView.orbital.layout(.size(44))
 bannerView.orbital.layout(.size(width: 320, height: 180))
 videoView.orbital.layout(.aspectRatio(16.0 / 9.0))
-```
 
-### Center shortcuts
-
-```swift
+// center
 spinnerView.orbital.layout(.center())
 badge.orbital.layout(.center(offset: CGPoint(x: 10, y: -5)))
-```
 
-### Targeting another view with `.to()`
-
-```swift
+// target another view
 subtitle.orbital.layout(
     .top(8).to(titleLabel, .bottom),
     .leading.to(titleLabel, .leading)
 )
 
-view.orbital.layout(
-    .top(16).to(view.safeAreaLayoutGuide, .top),
-    .bottom(16).to(view.safeAreaLayoutGuide, .bottom)
-)
-```
-
-### Relations
-
-```swift
+// relations
 descriptionLabel.orbital.layout(.height(120).orLess)
 contentView.orbital.layout(.top(8).orMore.to(toolbar, .bottom))
-```
 
-### Priority
-
-```swift
+// priority
 view.orbital.layout(
     .top(16).priority(.high),
-    .bottom(16).priority(.low),
     .height(44).priority(.custom(600))
 )
-```
 
-### Multiplier
-
-```swift
+// multiplier
 view.orbital.layout(.width.like(superview, 0.4))           // 40% of superview width
-view.orbital.layout(.height.like(imageView, .width, 0.5))  // height == imageView.width * 0.5
+view.orbital.layout(.height.like(imageView, .width, 0.5))  // height == imageView.width × 0.5
 view.orbital.layout(.height.like(.width, 1.0))             // square
-```
 
-### Full chain
-
-```swift
+// full chain → single constraint
 let c = view.orbital.constraint(.top(16).to(header, .bottom).orMore.priority(.high))
 c.constant = 24
 ```
 
 ---
 
-## Stored Constraints
+## Stored constraints
 
-Every constraint is stored by anchor. Named accessors return the `.equal` constraint for that anchor:
-
-```swift
-view.orbital.topConstraint
-view.orbital.bottomConstraint
-view.orbital.leadingConstraint
-view.orbital.trailingConstraint
-view.orbital.widthConstraint
-view.orbital.heightConstraint
-view.orbital.centerXConstraint
-view.orbital.centerYConstraint
-```
-
-For non-equal relations:
+Every constraint is stored by anchor. Named accessors return the `.equal` constraint.
 
 ```swift
+view.orbital.layout(.top(16), .height(200))
+
+view.orbital.heightConstraint?.constant = 300
+UIView.animate(withDuration: 0.3) { view.superview?.layoutIfNeeded() }
+
+// available: topConstraint, bottomConstraint, leadingConstraint, trailingConstraint,
+//            widthConstraint, heightConstraint, centerXConstraint, centerYConstraint
+
+// non-equal relations
 view.orbital.constraint(for: .width, relation: .lessOrEqual)
 ```
 
 ---
 
-## Update & Remake
-
-`update()` changes the `constant` on existing constraints. It is a no-op for anchors with no stored constraint.
+## Update & remake
 
 ```swift
+// update — change `constant` on existing constraints; no-op if anchor has no stored constraint
 view.orbital.update(.top(24), .height(300))
 view.orbital.update(.edges(24))
-```
 
-`remake()` deactivates and replaces the constraints for the specified anchors. Other anchors are not affected.
-
-```swift
+// remake — deactivate and replace constraints for the specified anchors; others untouched
 view.orbital.remake(
     .top.to(navigationBar, .bottom),
     .height(120)
@@ -252,28 +171,21 @@ view.orbital.remake(
 
 ---
 
-## Batch Activate / Deactivate
+## Activate / deactivate
 
 ```swift
 let constraints = view.orbital.layout(.top(8), .leading(16), .trailing(16))
 constraints.deactivate()
 constraints.activate()
+
+// deferred activation — named accessors work even while inactive
+let pending = view.orbital.prepareLayout(.top(8), .leading(16), .trailing(16))
+pending.activate()
 ```
 
 ---
 
-## Deferred Activation
-
-```swift
-let constraints = view.orbital.prepareLayout(.top(8), .leading(16), .trailing(16))
-constraints.activate()
-```
-
-Named accessors are available even while constraints are inactive.
-
----
-
-## Content Hugging & Compression Resistance
+## Hugging & compression
 
 ```swift
 titleLabel.orbital.hugging(.high, axis: .horizontal)
@@ -282,9 +194,9 @@ titleLabel.orbital.compression(.required, axis: .horizontal)
 
 ---
 
-## Debug Labels
+## Debug labels
 
-Constraint identifiers appear in Xcode's unsatisfiable-constraints log.
+Identifiers show up in Xcode's unsatisfiable-constraints log.
 
 ```swift
 view.orbital.layout(
@@ -295,38 +207,29 @@ view.orbital.layout(
 
 ---
 
-## Sign Convention
+## Sign convention
 
-`trailing`, `bottom`, and `right` constants are negated automatically on same-edge constraints. Pass a positive value in all cases.
+`trailing`, `bottom`, `right` — auto-negated on same-edge constraints. Always pass a positive value.
 
 ```swift
 view.orbital.layout(
-    .trailing(16),   // view.trailing = superview.trailing − 16  ✓
-    .bottom(16)      // view.bottom   = superview.bottom   − 16  ✓
+    .trailing(16),                                // view.trailing = superview.trailing − 16
+    .bottom(16)                                   // view.bottom   = superview.bottom   − 16
 )
-```
 
-To suppress or force negation on cross-anchor constraints:
-
-```swift
-.trailing(8).to(avatar, .trailing).asOffset   // suppress negation
-.bottom(16).to(header, .top).asInset          // force negation
+// cross-anchor overrides
+.trailing(8).to(avatar, .trailing).asOffset      // suppress negation
+.bottom(16).to(header, .top).asInset             // force negation
 ```
 
 ---
 
 ## macOS
 
-The API is identical on macOS. `NSView` anchors are used automatically. Baseline anchors (`.firstBaseline`, `.lastBaseline`) are UIKit-only and produce a compile-time error on macOS.
-
----
-
-## Source Stability
-
-OrbitalLayout follows semantic versioning. Source-breaking changes will not be introduced within a major version.
+Identical API. `NSView` anchors are used automatically. `.firstBaseline` / `.lastBaseline` are UIKit-only — using them on macOS is a compile-time error.
 
 ---
 
 ## License
 
-OrbitalLayout is available under the MIT license. See [LICENSE](LICENSE) for details.
+MIT. See [LICENSE](LICENSE).
