@@ -807,7 +807,7 @@ struct IntegrationTests {
             #expect(view.orbital.topConstraint?.constant == 16)
         }
 
-        @Test("cross-anchor bottom.to(header, .top) constant is positive")
+        @Test("cross-anchor bottom.to(header, .top) constant is auto-negated")
         func crossAnchorBottomToHeaderTop() {
             let parent = makeParent()
             let header = makeChild()
@@ -821,7 +821,7 @@ struct IntegrationTests {
                 )
             }
 
-            #expect(view.orbital.bottomConstraint?.constant == 16)
+            #expect(view.orbital.bottomConstraint?.constant == -16)
         }
 
         @Test("asOffset suppresses auto-negation on same-anchor trailing")

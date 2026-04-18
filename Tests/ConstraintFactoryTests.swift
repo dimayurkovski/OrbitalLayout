@@ -169,26 +169,81 @@ struct ConstraintFactoryTests {
         #expect(c.constant == -16)
     }
 
-    // MARK: - Cross-anchor (no auto-negation)
+    // MARK: - Cross-anchor forward (no auto-negation)
 
-    @Test("bottom(16).to(header, .top) → cross-anchor, constant positive")
+    @Test("top(8).to(header, .bottom) → forward spacer, constant stays positive")
+    func topToHeaderBottom() {
+        let (parent, child) = makeViewPair()
+        let header = OrbitalView()
+        parent.addSubview(header)
+        let c = make(.top(8).to(header, .bottom), for: child)
+        #expect(c.constant == 8)
+        #expect(c.firstAttribute == .top)
+        #expect(c.secondAttribute == .bottom)
+    }
+
+    @Test("leading(8).to(avatar, .trailing) → forward spacer, constant stays positive")
+    func leadingToTrailingCrossAnchor() {
+        let (parent, child) = makeViewPair()
+        let avatar = OrbitalView()
+        parent.addSubview(avatar)
+        let c = make(.leading(8).to(avatar, .trailing), for: child)
+        #expect(c.constant == 8)
+        #expect(c.firstAttribute == .leading)
+        #expect(c.secondAttribute == .trailing)
+    }
+
+    // MARK: - Cross-anchor reverse spacer (auto-negated)
+
+    @Test("bottom(16).to(header, .top) → reverse spacer, auto-negated to -16")
     func bottomToHeaderTop() {
         let (parent, child) = makeViewPair()
         let header = OrbitalView()
         parent.addSubview(header)
         let c = make(.bottom(16).to(header, .top), for: child)
-        #expect(c.constant == 16)
+        #expect(c.constant == -16)
         #expect(c.firstAttribute == .bottom)
         #expect(c.secondAttribute == .top)
     }
 
-    @Test("trailing(8).to(avatar, .leading) → cross-anchor, constant positive")
+    @Test("trailing(8).to(avatar, .leading) → reverse spacer, auto-negated to -8")
     func trailingToLeading() {
         let (parent, child) = makeViewPair()
         let avatar = OrbitalView()
         parent.addSubview(avatar)
         let c = make(.trailing(8).to(avatar, .leading), for: child)
+        #expect(c.constant == -8)
+        #expect(c.firstAttribute == .trailing)
+        #expect(c.secondAttribute == .leading)
+    }
+
+    @Test("right(16).to(mcpSwitch, .left) → reverse spacer, auto-negated to -16")
+    func rightToLeft() {
+        let (parent, child) = makeViewPair()
+        let other = OrbitalView()
+        parent.addSubview(other)
+        let c = make(.right(16).to(other, .left), for: child)
+        #expect(c.constant == -16)
+        #expect(c.firstAttribute == .right)
+        #expect(c.secondAttribute == .left)
+    }
+
+    @Test(".asOffset suppresses reverse-spacer auto-negation (trailing→leading)")
+    func asOffsetSuppressesReverseSpacerNegation() {
+        let (parent, child) = makeViewPair()
+        let avatar = OrbitalView()
+        parent.addSubview(avatar)
+        let c = make(.trailing(8).to(avatar, .leading).asOffset, for: child)
         #expect(c.constant == 8)
+    }
+
+    @Test(".asOffset suppresses reverse-spacer auto-negation (bottom→top)")
+    func asOffsetSuppressesReverseSpacerNegationBottom() {
+        let (parent, child) = makeViewPair()
+        let header = OrbitalView()
+        parent.addSubview(header)
+        let c = make(.bottom(16).to(header, .top).asOffset, for: child)
+        #expect(c.constant == 16)
     }
 
     // MARK: - .asOffset / .asInset overrides

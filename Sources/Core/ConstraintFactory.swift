@@ -195,7 +195,10 @@ enum ConstraintFactory {
     ///
     /// - If `signOverride` is `.offset` → constant returned as-is (positive).
     /// - If `signOverride` is `.inset`  → constant negated.
-    /// - Otherwise: auto-negate when source and target anchors are both a trailing/bottom/right edge.
+    /// - Otherwise: auto-negate in two cases:
+    ///   1. Same-edge: source and target are the same trailing/bottom/right anchor.
+    ///   2. Reverse-spacer: `bottom→top`, `trailing→leading`, `right→left` —
+    ///      the caller passes a positive gap value but `+constant` would produce overlap.
     ///
     /// - Parameters:
     ///   - anchor: The source anchor.
@@ -215,9 +218,22 @@ enum ConstraintFactory {
         case .inset:
             return -constant
         case nil:
-            // Auto-negate same-edge trailing/bottom/right constraints
-            let isAutoNegated = isTrailingEdge(anchor) && anchor == targetAnchor
+            let isSameEdge = isTrailingEdge(anchor) && anchor == targetAnchor
+            let isAutoNegated = isSameEdge || isReverseSpacerPair(source: anchor, target: targetAnchor)
             return isAutoNegated ? -constant : constant
+        }
+    }
+
+    /// Returns `true` for cross-anchor pairs where a positive constant would produce overlap
+    /// instead of a gap: `bottom→top`, `trailing→leading`, `right→left`.
+    ///
+    /// For these pairs the NSLayout equation is `source = target + constant`, so a positive
+    /// constant moves the source *past* the target in the wrong direction. Auto-negating
+    /// lets callers always pass a positive gap value.
+    private static func isReverseSpacerPair(source: OrbitalAnchor, target: OrbitalAnchor) -> Bool {
+        switch (source, target) {
+        case (.bottom, .top), (.trailing, .leading), (.right, .left): return true
+        default: return false
         }
     }
 

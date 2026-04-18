@@ -423,12 +423,25 @@ Replaced constraints are deactivated and removed from `ConstraintStorage`. If th
 
 The rule applies regardless of whether `.to()` was used — what matters is that source and target anchor are the same edge.
 
-### Cross-anchor → constant applied as-is (positive)
+### Cross-anchor forward → constant applied as-is (positive)
+
+These go "in the natural direction" — the gap is already positive:
 
 ```swift
-.bottom(16).to(header, .top)          // view.bottom   = header.top    + 16  (gap below header)
-.leading(8).to(avatar, .trailing)     // view.leading  = avatar.trailing + 8  (gap after avatar)
-.top(8).to(header, .bottom)           // view.top      = header.bottom  + 8   (gap below header)
+.top(8).to(header, .bottom)           // view.top      = header.bottom  + 8   (gap below header) ✅
+.leading(8).to(avatar, .trailing)     // view.leading  = avatar.trailing + 8   (gap after avatar) ✅
+.left(8).to(avatar, .right)           // view.left     = avatar.right   + 8   (gap after avatar) ✅
+```
+
+### Cross-anchor reverse spacer → auto-negated
+
+`bottom→top`, `trailing→leading`, `right→left` go "against the direction" — a positive constant
+would produce overlap. Pass a positive gap value; the library negates it internally:
+
+```swift
+.bottom(16).to(header, .top)          // view.bottom   = header.top    − 16  (gap above header) ✅
+.trailing(8).to(avatar, .leading)     // view.trailing = avatar.leading − 8   (gap before avatar) ✅
+.right(8).to(avatar, .left)           // view.right    = avatar.left   − 8   (gap before avatar) ✅
 ```
 
 ### Override modifiers
