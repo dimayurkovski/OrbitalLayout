@@ -9,26 +9,10 @@ An Auto Layout DSL for Swift. Chainable, type-safe, wraps `NSLayoutConstraint` d
 [![License](https://img.shields.io/badge/License-MIT-lightgrey)](LICENSE)
 
 ```swift
-view.orbit(avatar, nameLabel, followButton) {
-    avatar.orbital.layout(
-        .top(24).to(view.safeAreaLayoutGuide, .top),
-        .leading(16),
-        .size(80)
-    )
-    nameLabel.orbital.layout(
-        .top.to(avatar, .top),
-        .leading(12).to(avatar, .trailing),
-        .trailing(16)
-    )
-    followButton.orbital.layout(
-        .top(16).to(nameLabel, .bottom),
-        .leading(16), .trailing(16),
-        .height(44)
-    )
-}
+view.orbit(label, .top(16), .leading(16), .trailing(16))
 ```
 
-`orbit` adds the subviews, disables autoresizing masks, and activates constraints — in one call.
+One call: `addSubview`, disable autoresizing mask, activate constraints.
 
 iOS 15+ · tvOS 15+ · macOS 12+ · Swift 5.10+ · Xcode 15+
 
@@ -75,10 +59,22 @@ view.orbit(label, .top(16), .leading(16), .trailing(16))
 label.orbit(to: view, .top(16), .leading(16), .trailing(16))
 
 // multiple children — every view is in the hierarchy before the closure runs
-view.orbit(header, content, footer) {
-    header.orbital.layout(.top(16), .leading(16), .trailing(16), .height(44))
-    content.orbital.layout(.top(8).to(header, .bottom), .leading(16), .trailing(16))
-    footer.orbital.layout(.top(8).to(content, .bottom), .leading(16), .trailing(16), .bottom(16))
+view.orbit(avatar, nameLabel, followButton) {
+    avatar.orbital.layout(
+        .top(24).to(view.safeAreaLayoutGuide, .top),
+        .leading(16),
+        .size(80)
+    )
+    nameLabel.orbital.layout(
+        .top.to(avatar, .top),
+        .leading(12).to(avatar, .trailing),
+        .trailing(16)
+    )
+    followButton.orbital.layout(
+        .top(16).to(nameLabel, .bottom),
+        .leading(16), .trailing(16),
+        .height(44)
+    )
 }
 
 // already in the hierarchy
@@ -144,7 +140,6 @@ Every constraint is stored by anchor. Named accessors return the `.equal` constr
 view.orbital.layout(.top(16), .height(200))
 
 view.orbital.heightConstraint?.constant = 300
-UIView.animate(withDuration: 0.3) { view.superview?.layoutIfNeeded() }
 
 // available: topConstraint, bottomConstraint, leadingConstraint, trailingConstraint,
 //            widthConstraint, heightConstraint, centerXConstraint, centerYConstraint
