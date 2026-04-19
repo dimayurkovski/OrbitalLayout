@@ -16,8 +16,6 @@ One call: `addSubview`, disable autoresizing mask, activate constraints.
 
 iOS 15+ · tvOS 15+ · macOS 12+ · Swift 5.10+ · Xcode 15+
 
----
-
 ## Contents
 
 - [Install](#install)
@@ -31,7 +29,6 @@ iOS 15+ · tvOS 15+ · macOS 12+ · Swift 5.10+ · Xcode 15+
 - [Sign convention](#sign-convention)
 - [macOS](#macos)
 
----
 
 ## Install
 
@@ -47,7 +44,6 @@ iOS 15+ · tvOS 15+ · macOS 12+ · Swift 5.10+ · Xcode 15+
 pod 'OrbitalLayout'
 ```
 
----
 
 ## Adding subviews
 
@@ -85,7 +81,6 @@ contentView.orbital.layout(
 )
 ```
 
----
 
 ## Constraints
 
@@ -130,7 +125,6 @@ let c = view.orbital.constraint(.top(16).to(header, .bottom).orMore.priority(.hi
 c.constant = 24
 ```
 
----
 
 ## Stored constraints
 
@@ -148,7 +142,6 @@ view.orbital.heightConstraint?.constant = 300
 view.orbital.constraint(for: .width, relation: .lessOrEqual)
 ```
 
----
 
 ## Update & remake
 
@@ -164,7 +157,6 @@ view.orbital.remake(
 )
 ```
 
----
 
 ## Activate / deactivate
 
@@ -178,7 +170,6 @@ let pending = view.orbital.prepareLayout(.top(8), .leading(16), .trailing(16))
 pending.activate()
 ```
 
----
 
 ## Hugging & compression
 
@@ -187,7 +178,6 @@ titleLabel.orbital.hugging(.high, axis: .horizontal)
 titleLabel.orbital.compression(.required, axis: .horizontal)
 ```
 
----
 
 ## Debug labels
 
@@ -200,7 +190,6 @@ view.orbital.layout(
 )
 ```
 
----
 
 ## Sign convention
 
@@ -217,13 +206,11 @@ view.orbital.layout(
 .bottom(16).to(header, .top).asInset             // force negation
 ```
 
----
 
 ## macOS
 
 Identical API. `NSView` anchors are used automatically. `.firstBaseline` / `.lastBaseline` are UIKit-only — using them on macOS is a compile-time error.
 
----
 
 ## License
 
