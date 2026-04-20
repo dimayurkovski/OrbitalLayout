@@ -8,7 +8,7 @@
 | tvOS     | 15.0           |
 | macOS    | 12.0          |
 
-// swift-tools-version: 6.0  
+// swift-tools-version: 5.9
 swiftLanguageModes: [.v5, .v6]
 
 > watchOS excluded — no Auto Layout support on watchOS.

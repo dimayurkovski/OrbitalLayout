@@ -13,7 +13,7 @@ import AppKit
 ///
 /// `OrbitalDescriptor` is the core DSL building block. Instances are produced by
 /// static factory methods (`.top(16)`, `.edges`, `.center()`, …) and then passed
-/// to `OrbitalProxy.layout(_:)` or `view.orbit(_:_:)`.
+/// to `OrbitalProxy.layout(_:)` or `view.orbit(add:_:)`.
 ///
 /// All modifier methods (`.to()`, `.orLess`, `.priority()`, etc.) return a **new**
 /// copy of the descriptor — the original is never mutated, giving safe chaining.

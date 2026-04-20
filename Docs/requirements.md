@@ -13,7 +13,7 @@ import OrbitalLayout
 ### Single child — inline constraints
 
 ```swift
-view.orbit(label, .top(16), .leading(16), .trailing(16))
+view.orbit(add: label, .top(16), .leading(16), .trailing(16))
 ```
 
 Performs: `addSubview`, `translatesAutoresizingMaskIntoConstraints = false`, activates constraints to `view`.
@@ -505,5 +505,5 @@ constraints.activate()
 Orbital does not manage arranged subviews. Use Orbital to position the UIStackView itself, not its children.
 
 ```swift
-view.orbit(stackView, .top(16), .leading(16), .trailing(16))
+view.orbit(add: stackView, .top(16), .leading(16), .trailing(16))
 ```

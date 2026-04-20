@@ -111,7 +111,7 @@ Follow strictly in order as specified in `Docs/plan.md`:
 8. **Task 8** — OrbitalProxy group shortcuts (edges, size, center)
 9. **Task 9** — OrbitalProxy `update()` / `remake()`
 10. **Task 10** — OrbitalProxy `hugging()` / `compression()`
-11. **Task 11** — OrbitalView extensions (`orbital` property + `orbit(child:...)` overloads)
+11. **Task 11** — OrbitalView extensions (`orbital` property + `orbit(add:...)` / `orbit(to:...)` overloads)
 12. **Task 12** — NSLayoutConstraint extensions (batch activate/deactivate)
 13. **Task 13** — Error handling & debug warnings
 14. **Task 14** — Integration tests

@@ -860,6 +860,81 @@ struct IntegrationTests {
             // .asInset: constant should be -16
             #expect(view.orbital.bottomConstraint?.constant == -16)
         }
+
+        @Test("right→left reverse spacer is auto-negated; left→right forward spacer is not")
+        func rightLeftNegatedLeftRightNotNegated() {
+            let parent = makeParent()
+            let reference = makeChild()
+            let viewA = makeChild()
+            let viewB = makeChild()
+
+            parent.orbit(reference, viewA, viewB) {
+                reference.orbital.layout(.top(0), .leading(0), .width(40))
+                // right→left: reverse spacer — should negate to -16
+                viewA.orbital.layout(.top(0), .right(16).to(reference, .left))
+                // left→right: forward spacer — should NOT negate, stays +16
+                viewB.orbital.layout(.top(0), .left(16).to(reference, .right))
+            }
+
+            #expect(viewA.orbital.constraint(for: .right, relation: .equal)?.constant == -16)
+            #expect(viewB.orbital.constraint(for: .left, relation: .equal)?.constant == 16)
+        }
+
+        @Test("asInset on centerX — forces negation even though centerX is not a trailing edge")
+        func asInsetOnCenterX() {
+            let parent = makeParent()
+            let view = makeChild()
+
+            parent.orbit(view) {
+                view.orbital.layout(.top(0), .centerX(10).asInset)
+            }
+
+            #expect(view.orbital.centerXConstraint?.constant == -10)
+        }
+
+        @Test("right(16) constant is auto-negated to -16 (same as trailing)")
+        func rightAutoNegated() {
+            let parent = makeParent()
+            let view = makeChild()
+
+            parent.orbit(view) {
+                view.orbital.layout(.right(16), .top(0))
+            }
+
+            #expect(view.orbital.constraint(for: .right, relation: .equal)?.constant == -16)
+        }
+
+        @Test("layout(.width(100), .width(300).orLess) stores both relations independently")
+        func multipleRelationsSameAnchorCoexist() {
+            let parent = makeParent()
+            let view = makeChild()
+
+            parent.orbit(view) {
+                view.orbital.layout(.top(0), .width(100), .width(300).orLess)
+            }
+
+            #expect(view.orbital.widthConstraint?.constant == 100)
+            #expect(view.orbital.widthConstraint?.isActive == true)
+            let lessOrEqual = view.orbital.constraint(for: .width, relation: .lessOrEqual)
+            #expect(lessOrEqual?.constant == 300)
+            #expect(lessOrEqual?.isActive == true)
+        }
+
+        @Test("layout(.width(150)) replaces only .equal — .lessOrEqual on same anchor unchanged")
+        func relayoutEqualDoesNotTouchOtherRelations() {
+            let parent = makeParent()
+            let view = makeChild()
+
+            parent.orbit(view) {
+                view.orbital.layout(.top(0), .width(100), .width(300).orLess)
+            }
+            let lessOrEqual = view.orbital.constraint(for: .width, relation: .lessOrEqual)
+            view.orbital.layout(.width(150))
+
+            #expect(view.orbital.widthConstraint?.constant == 150)
+            #expect(view.orbital.constraint(for: .width, relation: .lessOrEqual) === lessOrEqual)
+            #expect(lessOrEqual?.constant == 300)
+        }
     }
 
     // MARK: - 10. Priority
@@ -915,6 +990,22 @@ struct IntegrationTests {
             }
 
             #expect(view.orbital.widthConstraint?.priority.rawValue == 600)
+        }
+
+        @Test("custom priority at boundary values 1 and 999 are accepted")
+        func customPriorityBoundaries() {
+            let parent = makeParent()
+            let view = makeChild()
+
+            parent.orbit(view) {
+                view.orbital.layout(
+                    .top(0).priority(.custom(1)),
+                    .width(100).priority(.custom(999))
+                )
+            }
+
+            #expect(view.orbital.topConstraint?.priority.rawValue == 1)
+            #expect(view.orbital.widthConstraint?.priority.rawValue == 999)
         }
     }
 
@@ -984,7 +1075,7 @@ struct IntegrationTests {
             let parent = makeParent()
             let child = makeChild()
 
-            parent.orbit(child, [.top(16), .leading(16), .trailing(16)])
+            parent.orbit(add: child, [.top(16), .leading(16), .trailing(16)])
 
             #expect(child.superview === parent)
             #expect(child.orbital.topConstraint?.constant == 16)
@@ -1152,7 +1243,7 @@ struct IntegrationTests {
             let parent = makeParent()
             let label = makeChild()
 
-            parent.orbit(label, OrbitalDescriptor.top(16), OrbitalDescriptor.leading(16), OrbitalDescriptor.trailing(16))
+            parent.orbit(add: label, OrbitalDescriptor.top(16), OrbitalDescriptor.leading(16), OrbitalDescriptor.trailing(16))
 
             #expect(label.superview === parent)
             #expect(label.translatesAutoresizingMaskIntoConstraints == false)
@@ -1166,7 +1257,7 @@ struct IntegrationTests {
             let parent = makeParent()
             let imageView = makeChild()
 
-            parent.orbit(imageView, OrbitalDescriptor.edges(4))
+            parent.orbit(add: imageView, OrbitalDescriptor.edges(4))
 
             #expect(imageView.orbital.topConstraint?.constant == 4)
             #expect(imageView.orbital.bottomConstraint?.constant == -4)
@@ -1179,7 +1270,7 @@ struct IntegrationTests {
             let parent = makeParent()
             let avatarView = makeChild()
 
-            parent.orbit(avatarView, OrbitalDescriptor.size(80), OrbitalDescriptor.center())
+            parent.orbit(add: avatarView, OrbitalDescriptor.size(80), OrbitalDescriptor.center())
 
             #expect(avatarView.orbital.widthConstraint?.constant == 80)
             #expect(avatarView.orbital.heightConstraint?.constant == 80)

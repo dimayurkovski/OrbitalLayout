@@ -13,7 +13,7 @@
     "Main entry point is the .orbital proxy on any view, e.g. view.orbital.layout(.top(16), .leading(16), .width(120)).",
     "layout() creates and activates constraints; prepareLayout() creates them without activating; update() and remake() modify existing ones.",
     "Trailing, bottom, and right constants are auto-negated — always pass positive insets like .trailing(16), not -16.",
-    "Use orbit(child:) to addSubview and set translatesAutoresizingMaskIntoConstraints = false in one call.",
+    "Use orbit(add:) to addSubview and activate constraints in one call (parent-side). Preferred form takes an array: view.orbit(add: label, [.top(16), .leading(16)]). Variadic shorthand also works: view.orbit(add: label, .top(16), .leading(16)). Use orbit(to:) for the child-side equivalent, preferred array form: label.orbit(to: view, [.top(16), .leading(16)]). Variadic shorthand also works: label.orbit(to: view, .top(16), .leading(16)).",
     "firstBaseline and lastBaseline anchors are UIKit-only and guarded at compile time — do not use them in macOS code.",
     "OrbitalProxy, OrbitalDescriptor, ConstraintStorage, and ConstraintFactory are @MainActor — call them from the main actor."
   ]

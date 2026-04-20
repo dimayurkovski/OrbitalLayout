@@ -8,21 +8,21 @@ Practical usage examples covering all API surface areas.
 
 ```swift
 // Add label as subview of view with constraints to superview (variadic)
-view.orbit(label, .top(16), .leading(16), .trailing(16))
+view.orbit(add: label, .top(16), .leading(16), .trailing(16))
 
 // Same, array form
-view.orbit(label, [.top(16), .leading(16), .trailing(16)])
+view.orbit(add: label, [.top(16), .leading(16), .trailing(16)])
 ```
 
 ```swift
 // Pin all edges flush
-view.orbit(imageView, .edges(4))
-view.orbit(imageView, .edges)     // same, shorthand
+view.orbit(add: imageView, .edges(4))
+view.orbit(add: imageView, .edges)     // same, shorthand
 ```
 
 ```swift
 // Fixed size, centered
-view.orbit(avatarView, .size(80), .center())
+view.orbit(add: avatarView, .size(80), .center())
 ```
 
 ---
@@ -550,7 +550,7 @@ view.orbital.layout(
 
 ```swift
 // Same API, uses NSView anchors automatically
-containerView.orbit(contentView, .edges(20))
+containerView.orbit(add: contentView, .edges(20))
 
 contentView.orbital.layout(
     .top(16),
@@ -570,7 +570,7 @@ contentView.orbital.layout(
 
 ```swift
 // Orbital positions the stack view itself, not its arranged subviews
-view.orbit(stackView, .top(16), .leading(16), .trailing(16))
+view.orbit(add: stackView, .top(16), .leading(16), .trailing(16))
 stackView.orbital.layout(.bottom(16))
 ```
 
@@ -612,7 +612,7 @@ class ExpandablePanel: UIView {
     let contentView = UIView()
 
     func setup(in parent: UIView) {
-        parent.orbit(self, .top, .leading, .trailing)
+        parent.orbit(add: self, .top, .leading, .trailing)
         orbit(contentView, .edges)
         orbital.layout(.height(60))
     }

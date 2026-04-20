@@ -32,7 +32,7 @@ public extension OrbitalView {
 
 public extension OrbitalView {
 
-    /// Adds a single child view and applies inline constraints.
+    /// Adds a single child view and applies inline constraints (preferred form).
     ///
     /// Performs the following steps in order:
     /// 1. Sets `child.translatesAutoresizingMaskIntoConstraints = false`
@@ -43,37 +43,37 @@ public extension OrbitalView {
     /// shortcuts via leading-dot syntax:
     ///
     /// ```swift
-    /// view.orbit(label, .top(16), .leading(16), .trailing(16))
-    /// view.orbit(imageView, .edges(4))
-    /// view.orbit(avatarView, .size(80), .center())
-    /// view.orbit(iconView, .leading(8), .centerY(), .size(24))
+    /// view.orbit(add: label, .top(16), .leading(16), .trailing(16))
+    /// view.orbit(add: imageView, .edges(4))
+    /// view.orbit(add: avatarView, .size(80), .center())
+    /// view.orbit(add: iconView, .leading(8), .centerY(), .size(24))
     /// ```
     ///
     /// - Parameters:
     ///   - child: The view to add as a subview.
     ///   - items: One or more ``OrbitalConstraintConvertible`` values.
     @MainActor
-    func orbit(_ child: OrbitalView, _ items: any OrbitalConstraintConvertible...) {
+    func orbit(add child: OrbitalView, _ items: any OrbitalConstraintConvertible...) {
         child.translatesAutoresizingMaskIntoConstraints = false
         addSubview(child)
         child.orbital.layout(items)
     }
 
-    /// Array-accepting overload of ``orbit(_:_:)-variadic``.
+    /// Array-accepting overload of ``orbit(add:_:)-variadic``.
     ///
     /// Useful when the constraint list is built dynamically. Accepts descriptors and
     /// group shortcuts in the same array.
     ///
     /// ```swift
-    /// view.orbit(label, [.top(16), .leading(16), .trailing(16)])
-    /// view.orbit(imageView, [OrbitalDescriptor.edges(4)])
+    /// view.orbit(add: label, [.top(16), .leading(16), .trailing(16)])
+    /// view.orbit(add: imageView, [OrbitalDescriptor.edges(4)])
     /// ```
     ///
     /// - Parameters:
     ///   - child: The view to add as a subview.
     ///   - items: An array of ``OrbitalConstraintConvertible`` values.
     @MainActor
-    func orbit(_ child: OrbitalView, _ items: [any OrbitalConstraintConvertible]) {
+    func orbit(add child: OrbitalView, _ items: [any OrbitalConstraintConvertible]) {
         child.translatesAutoresizingMaskIntoConstraints = false
         addSubview(child)
         child.orbital.layout(items)

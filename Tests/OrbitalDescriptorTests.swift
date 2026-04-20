@@ -403,6 +403,21 @@ struct OrbitalDescriptorTests {
         #expect(modified.multiplier == 0.5)
     }
 
+    @Test func likeCalledTwiceLastCallWins() {
+        let view1 = OrbitalView()
+        let view2 = OrbitalView()
+        let d = OrbitalDescriptor(anchor: .width).like(view1, 0.5).like(view2, 0.8)
+        #expect(d.targetView === view2)
+        #expect(d.multiplier == 0.8)
+    }
+
+    @Test func likeWithZeroMultiplierIsValid() {
+        let view = OrbitalView()
+        let d = OrbitalDescriptor(anchor: .width).like(view, 0)
+        #expect(d.multiplier == 0)
+        #expect(d.likeWasCalled == true)
+    }
+
     // MARK: - Full chain
 
     @Test func fullChainAllFieldsCorrect() {
