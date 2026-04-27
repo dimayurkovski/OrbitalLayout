@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name         = 'OrbitalLayout'
-  s.version      = '1.3.0'
+  s.version      = '1.4.0'
   s.summary      = 'Lightweight Auto Layout constraint library for Swift.'
   s.homepage     = 'https://github.com/dimayurkovski/OrbitalLayout'
   s.license      = { :type => 'MIT', :file => 'LICENSE' }

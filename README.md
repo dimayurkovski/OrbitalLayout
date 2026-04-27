@@ -27,6 +27,7 @@ iOS 15+ · tvOS 15+ · macOS 12+ · Swift 5.10+ · Xcode 15+
 - [Hugging & compression](#hugging--compression)
 - [Debug labels](#debug-labels)
 - [Sign convention](#sign-convention)
+- [Multiple children](#multiple-children)
 - [macOS](#macos)
 
 
@@ -60,24 +61,9 @@ label.orbit(to: view, [.top(16), .leading(16), .trailing(16)])
 // child-side (variadic shorthand)
 label.orbit(to: view, .top(16), .leading(16), .trailing(16))
 
-// multiple children — every view is in the hierarchy before the closure runs
-view.orbit(avatar, nameLabel, followButton) {
-    avatar.orbital.layout(
-        .top(24).to(view.safeAreaLayoutGuide, .top),
-        .leading(16),
-        .size(80)
-    )
-    nameLabel.orbital.layout(
-        .top.to(avatar, .top),
-        .leading(12).to(avatar, .trailing),
-        .trailing(16)
-    )
-    followButton.orbital.layout(
-        .top(16).to(nameLabel, .bottom),
-        .leading(16), .trailing(16),
-        .height(44)
-    )
-}
+// view controller — forwards to controller.view
+controller.orbit(add: label, [.top(16), .leading(16), .trailing(16)])
+label.orbit(to: controller, [.top(16), .leading(16), .trailing(16)])
 
 // already in the hierarchy
 contentView.orbital.layout(
@@ -210,6 +196,37 @@ view.orbital.layout(
 // cross-anchor overrides
 .trailing(8).to(avatar, .trailing).asOffset      // suppress negation
 .bottom(16).to(header, .top).asInset             // force negation
+```
+
+
+## Multiple children
+
+Every view is in the hierarchy before the closure runs, so cross-references work without ordering tricks.
+
+```swift
+view.orbit(avatar, nameLabel, followButton) {
+    avatar.orbital.layout(
+        .top(24).to(view.safeAreaLayoutGuide, .top),
+        .leading(16),
+        .size(80)
+    )
+    nameLabel.orbital.layout(
+        .top.to(avatar, .top),
+        .leading(12).to(avatar, .trailing),
+        .trailing(16)
+    )
+    followButton.orbital.layout(
+        .top(16).to(nameLabel, .bottom),
+        .leading(16), .trailing(16),
+        .height(44)
+    )
+}
+
+// view controller — same closure form, forwards to controller.view
+controller.orbit(avatar, nameLabel) {
+    avatar.orbital.layout(.top(24), .leading(16), .size(80))
+    nameLabel.orbital.layout(.top.to(avatar, .top), .leading(12).to(avatar, .trailing))
+}
 ```
 
 

@@ -22,7 +22,7 @@ let package = Package(
         .testTarget(
             name: "OrbitalLayoutTests",
             dependencies: ["OrbitalLayout"],
-            path: "OrbitalLayoutTests"
+            path: "Tests"
         ),
     ]
 )

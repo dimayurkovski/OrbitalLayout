@@ -24,6 +24,12 @@ public typealias OrbitalLayoutGuide = UILayoutGuide
 /// - On iOS and tvOS, resolves to `UILayoutPriority`.
 /// - On macOS, resolves to `NSLayoutConstraint.Priority`.
 public typealias OrbitalLayoutPriority = UILayoutPriority
+
+/// A platform-agnostic view controller type.
+///
+/// - On iOS and tvOS, resolves to `UIViewController`.
+/// - On macOS, resolves to `NSViewController`.
+public typealias OrbitalViewController = UIViewController
 #elseif canImport(AppKit)
 import AppKit
 /// A platform-agnostic view type.
@@ -43,6 +49,12 @@ public typealias OrbitalLayoutGuide = NSLayoutGuide
 /// - On iOS and tvOS, resolves to `UILayoutPriority`.
 /// - On macOS, resolves to `NSLayoutConstraint.Priority`.
 public typealias OrbitalLayoutPriority = NSLayoutConstraint.Priority
+
+/// A platform-agnostic view controller type.
+///
+/// - On iOS and tvOS, resolves to `UIViewController`.
+/// - On macOS, resolves to `NSViewController`.
+public typealias OrbitalViewController = NSViewController
 #endif
 
 /// A platform-agnostic layout constraint type. Resolves to `NSLayoutConstraint`.
