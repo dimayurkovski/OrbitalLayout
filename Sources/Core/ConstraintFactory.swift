@@ -38,7 +38,18 @@ enum ConstraintFactory {
     ///
     /// When non-nil, this closure is called instead of `print()` for all debug warnings.
     /// Set this in tests to verify that specific warnings are emitted.
-    static var debugWarningHandler: ((String) -> Void)? = nil
+    ///
+    /// - Note: Assigning to this property clears ``emittedWarnings``, so each test starts with a
+    ///   clean slate and is not silenced by a message another test already emitted.
+    static var debugWarningHandler: ((String) -> Void)? = nil {
+        didSet { emittedWarnings.removeAll() }
+    }
+
+    /// Warning messages already emitted, used to print each distinct warning only once.
+    ///
+    /// Constraints are recreated on every layout pass and in every reused cell, so an
+    /// unconditional `print` would repeat the same line indefinitely.
+    private static var emittedWarnings: Set<String> = []
 
     /// Calls the replaceable failure handler if set; otherwise forwards to `preconditionFailure`.
     ///
@@ -673,15 +684,10 @@ enum ConstraintFactory {
                 "Only one of .like() / .to() should be used per descriptor."
             )
         }
-        // Warn when a negative constant is passed for trailing/bottom/right
-        // (auto-negation already handles this, but explicit negatives are usually a mistake)
-        if isTrailingEdge(descriptor.anchor) && descriptor.constant < 0 {
-            emitWarning(
-                "OrbitalLayout [DEBUG]: Negative constant \(descriptor.constant) passed to " +
-                ".\(descriptor.anchor) — auto-negation will make this a positive offset. " +
-                "Pass a positive value to inset from the edge."
-            )
-        }
+        // Note: a negative constant on trailing/bottom/right is intentionally *not* warned about.
+        // Auto-negation turns it into an outward overhang (e.g. a decorative badge poking out of a
+        // card corner), which is a legitimate layout intent — indistinguishable from a mistyped inset.
+        //
         // Warn when .aspectRatio() descriptor (targetIsSelf + .width + .height) is combined with .to()
         // targetIsSelf + likeWasCalled=false + explicit targetView means user wrote .aspectRatio().to(...)
         if descriptor.targetIsSelf && descriptor.targetAnchor == .height
@@ -697,7 +703,10 @@ enum ConstraintFactory {
     }
 
     /// Routes a warning message through ``debugWarningHandler`` or `print`.
+    ///
+    /// Each distinct message is emitted only once per process — see ``emittedWarnings``.
     private static func emitWarning(_ message: String) {
+        guard emittedWarnings.insert(message).inserted else { return }
         if let handler = debugWarningHandler {
             handler(message)
         } else {

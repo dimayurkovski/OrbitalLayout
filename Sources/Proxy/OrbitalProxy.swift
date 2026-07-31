@@ -36,7 +36,19 @@ public final class OrbitalProxy {
     ///
     /// When non-nil, this closure is called instead of `print()` for all update-related debug warnings.
     /// Set this in tests to verify that specific warnings are emitted without relying on stdout.
-    static var debugWarningHandler: ((String) -> Void)? = nil
+    ///
+    /// - Note: Assigning to this property clears ``emittedWarnings``, so each test starts with a
+    ///   clean slate and is not silenced by a message another test already emitted.
+    static var debugWarningHandler: ((String) -> Void)? = nil {
+        didSet { emittedWarnings.removeAll() }
+    }
+
+    /// Warning messages already emitted, used to print each distinct warning only once.
+    ///
+    /// `update()` is routinely called every frame from animations, scroll handlers and keyboard
+    /// callbacks. Without this, a single mismatched anchor would flood the console with an
+    /// identical line on every call.
+    private static var emittedWarnings: Set<String> = []
 
     // MARK: - Properties
 
@@ -568,7 +580,10 @@ extension OrbitalProxy {
 
     #if DEBUG
     /// Routes an update-related warning through ``debugWarningHandler`` or `print`.
+    ///
+    /// Each distinct message is emitted only once per process — see ``emittedWarnings``.
     private func emitUpdateWarning(_ message: String) {
+        guard OrbitalProxy.emittedWarnings.insert(message).inserted else { return }
         if let handler = OrbitalProxy.debugWarningHandler {
             handler(message)
         } else {

@@ -183,10 +183,10 @@ struct ErrorHandlingTests {
         #expect(ConstraintFactory.failureHandler == nil)
     }
 
-    // MARK: - DEBUG warnings: negative constant for trailing/bottom/right
+    // MARK: - DEBUG warnings: negative constants stay silent
 
-    @Test("DEBUG trailing negative constant emits warning")
-    func debugNegativeTrailingConstant() {
+    @Test("Negative constants on trailing/bottom/right emit no warning")
+    func negativeTrailingEdgeConstantsAreSilent() {
         let (parent, child) = makeViewPair()
         _ = parent
 
@@ -194,65 +194,77 @@ struct ErrorHandlingTests {
         ConstraintFactory.debugWarningHandler = { warnings.append($0) }
         defer { ConstraintFactory.debugWarningHandler = nil }
 
-        _ = ConstraintFactory.make(from: .trailing(-16), for: child)
-
-        #expect(warnings.contains { $0.contains("Negative constant") && $0.contains("trailing") })
-    }
-
-    @Test("DEBUG bottom negative constant emits warning")
-    func debugNegativeBottomConstant() {
-        let (parent, child) = makeViewPair()
-        _ = parent
-
-        var warnings: [String] = []
-        ConstraintFactory.debugWarningHandler = { warnings.append($0) }
-        defer { ConstraintFactory.debugWarningHandler = nil }
-
-        _ = ConstraintFactory.make(from: .bottom(-8), for: child)
-
-        #expect(warnings.contains { $0.contains("Negative constant") && $0.contains("bottom") })
-    }
-
-    @Test("DEBUG right negative constant emits warning")
-    func debugNegativeRightConstant() {
-        let (parent, child) = makeViewPair()
-        _ = parent
-
-        var warnings: [String] = []
-        ConstraintFactory.debugWarningHandler = { warnings.append($0) }
-        defer { ConstraintFactory.debugWarningHandler = nil }
-
+        // A negative constant here is a deliberate outward overhang, not a mistake —
+        // .trailing(-6) resolves to `child.trailing = parent.trailing + 6`.
+        _ = ConstraintFactory.make(from: .trailing(-6), for: child)
+        _ = ConstraintFactory.make(from: .bottom(-10), for: child)
         _ = ConstraintFactory.make(from: .right(-4), for: child)
 
-        #expect(warnings.contains { $0.contains("Negative constant") && $0.contains("right") })
+        #expect(warnings.isEmpty)
     }
 
-    @Test("DEBUG positive trailing constant does not emit warning")
-    func noWarningPositiveTrailing() {
+    // MARK: - DEBUG warnings: warn-once deduplication
+
+    @Test("Repeating the same warning prints it only once")
+    func factoryWarningIsEmittedOnce() {
         let (parent, child) = makeViewPair()
-        _ = parent
+        let other = OrbitalView()
+        parent.addSubview(other)
 
         var warnings: [String] = []
         ConstraintFactory.debugWarningHandler = { warnings.append($0) }
         defer { ConstraintFactory.debugWarningHandler = nil }
 
-        _ = ConstraintFactory.make(from: .trailing(16), for: child)
+        let desc = OrbitalDescriptor(
+            anchor: .width,
+            constant: 0,
+            targetView: other,
+            multiplier: 0.5,
+            likeWasCalled: true
+        )
+        // Simulates the same misused descriptor being rebuilt on every layout pass.
+        for _ in 0..<5 {
+            _ = ConstraintFactory.make(from: desc, for: child)
+        }
 
-        #expect(warnings.filter { $0.contains("Negative constant") }.isEmpty)
+        #expect(warnings.count == 1)
     }
 
-    @Test("DEBUG negative top constant does not emit trailing-edge warning")
-    func noWarningNegativeTopConstant() {
+    @Test("Repeating the same update() warning prints it only once")
+    func updateWarningIsEmittedOnce() {
         let (parent, child) = makeViewPair()
         _ = parent
 
         var warnings: [String] = []
-        ConstraintFactory.debugWarningHandler = { warnings.append($0) }
-        defer { ConstraintFactory.debugWarningHandler = nil }
+        OrbitalProxy.debugWarningHandler = { warnings.append($0) }
+        defer { OrbitalProxy.debugWarningHandler = nil }
 
-        _ = ConstraintFactory.make(from: .top(-8), for: child)
+        // No constraint was ever created for .top, so every call misses the storage —
+        // the shape of an update() driven from an animation or scroll handler.
+        for _ in 0..<5 {
+            child.orbital.update(.top(10))
+        }
 
-        #expect(warnings.filter { $0.contains("Negative constant") }.isEmpty)
+        #expect(warnings.count == 1)
+    }
+
+    @Test("Reassigning the warning handler clears the emitted-message set")
+    func reassigningHandlerResetsDeduplication() {
+        let (parent, child) = makeViewPair()
+        _ = parent
+
+        var first: [String] = []
+        OrbitalProxy.debugWarningHandler = { first.append($0) }
+        child.orbital.update(.top(10))
+        OrbitalProxy.debugWarningHandler = nil
+
+        var second: [String] = []
+        OrbitalProxy.debugWarningHandler = { second.append($0) }
+        defer { OrbitalProxy.debugWarningHandler = nil }
+        child.orbital.update(.top(10))
+
+        #expect(first.count == 1)
+        #expect(second.count == 1)
     }
 
     // MARK: - DEBUG warnings: .like() overwritten by .to()
