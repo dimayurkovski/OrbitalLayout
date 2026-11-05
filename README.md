@@ -9,7 +9,7 @@ An Auto Layout DSL for Swift. Chainable, type-safe, wraps `NSLayoutConstraint` d
 [![License](https://img.shields.io/badge/License-MIT-lightgrey)](LICENSE)
 
 ```swift
-view.orbit(add: label, [.top(16), .leading(16), .trailing(16)])
+view.orbital.add(label, [.top(16), .leading(16), .trailing(16)])
 ```
 
 One call: `addSubview`, disable autoresizing mask, activate constraints.
@@ -51,20 +51,19 @@ pod 'OrbitalLayout'
 
 ```swift
 // parent-side (array form — preferred)
-view.orbit(add: label, [.top(16), .leading(16), .trailing(16)])
+view.orbital.add(label, [.top(16), .leading(16), .trailing(16)])
 
 // parent-side (variadic shorthand)
-view.orbit(add: label, .top(16), .leading(16), .trailing(16))
+view.orbital.add(label, .top(16), .leading(16), .trailing(16))
 
 // child-side (array form — preferred)
-label.orbit(to: view, [.top(16), .leading(16), .trailing(16)])
+label.orbital.add(to: view, [.top(16), .leading(16), .trailing(16)])
 
 // child-side (variadic shorthand)
-label.orbit(to: view, .top(16), .leading(16), .trailing(16))
+label.orbital.add(to: view, .top(16), .leading(16), .trailing(16))
 
 // view controller — forwards to controller.view
-controller.orbit(add: label, [.top(16), .leading(16), .trailing(16)])
-label.orbit(to: controller, [.top(16), .leading(16), .trailing(16)])
+label.orbital.add(to: controller, [.top(16), .leading(16), .trailing(16)])
 
 // already in the hierarchy
 contentView.orbital.layout(
@@ -72,6 +71,15 @@ contentView.orbital.layout(
     .leading(16), .trailing(16),
     .height(200)
 )
+```
+
+`add` returns the activated constraints. The `orbit` methods do the same work without returning them, and are also available on view controllers:
+
+```swift
+view.orbit(add: label, [.top(16), .leading(16), .trailing(16)])
+label.orbit(to: view, [.top(16), .leading(16), .trailing(16)])
+controller.orbit(add: label, [.top(16), .leading(16), .trailing(16)])
+label.orbit(to: controller, [.top(16), .leading(16), .trailing(16)])
 ```
 
 

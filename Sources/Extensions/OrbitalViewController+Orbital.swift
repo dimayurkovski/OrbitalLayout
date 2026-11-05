@@ -130,3 +130,43 @@ public extension OrbitalView {
         orbit(to: controller.view, items)
     }
 }
+
+// MARK: - OrbitalProxy + add(to: controller, ...) overloads
+
+public extension OrbitalProxy {
+
+    /// Adds this proxy's view as a subview of `controller.view` and activates constraints on it.
+    ///
+    /// Convenience that forwards to ``OrbitalProxy/add(to:_:)-variadic`` with
+    /// `controller.view` as the parent.
+    ///
+    /// ```swift
+    /// label.orbital.add(to: controller, .top(16), .leading(16), .trailing(16))
+    /// ```
+    ///
+    /// - Parameters:
+    ///   - controller: The view controller whose `view` will receive this proxy's view as a subview.
+    ///   - items: One or more ``OrbitalConstraintConvertible`` values.
+    /// - Returns: All activated `OrbitalConstraint` instances, in declaration order.
+    @discardableResult
+    func add(to controller: OrbitalViewController, _ items: any OrbitalConstraintConvertible...) -> [OrbitalConstraint] {
+        add(to: controller.view, items)
+    }
+
+    /// Array-accepting overload of ``add(to:_:)-variadic``.
+    ///
+    /// Useful when the constraint list is built dynamically.
+    ///
+    /// ```swift
+    /// label.orbital.add(to: controller, [.top(16), .leading(16), .trailing(16)])
+    /// ```
+    ///
+    /// - Parameters:
+    ///   - controller: The view controller whose `view` will receive this proxy's view as a subview.
+    ///   - items: An array of ``OrbitalConstraintConvertible`` values.
+    /// - Returns: All activated `OrbitalConstraint` instances, in declaration order.
+    @discardableResult
+    func add(to controller: OrbitalViewController, _ items: [any OrbitalConstraintConvertible]) -> [OrbitalConstraint] {
+        add(to: controller.view, items)
+    }
+}

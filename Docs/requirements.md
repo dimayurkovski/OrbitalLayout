@@ -13,10 +13,15 @@ import OrbitalLayout
 ### Single child — inline constraints
 
 ```swift
+view.orbital.add(label, .top(16), .leading(16), .trailing(16))
+label.orbital.add(to: view, .top(16), .leading(16), .trailing(16))
+
 view.orbit(add: label, .top(16), .leading(16), .trailing(16))
+label.orbit(to: view, .top(16), .leading(16), .trailing(16))
 ```
 
-Performs: `addSubview`, `translatesAutoresizingMaskIntoConstraints = false`, activates constraints to `view`.
+Performs: `addSubview`, `translatesAutoresizingMaskIntoConstraints = false`, activates constraints to `view`.  
+`orbital.add` returns the activated constraints; `orbit` forwards to it and returns nothing.
 
 ### Multiple children — closure layout
 

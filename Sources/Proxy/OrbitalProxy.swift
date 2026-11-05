@@ -684,6 +684,131 @@ extension OrbitalProxy {
     }
 }
 
+// MARK: - OrbitalProxy Adding Subviews
+
+extension OrbitalProxy {
+
+    /// Adds a child view to this proxy's view and activates constraints on the child.
+    ///
+    /// Performs the following steps in order:
+    /// 1. Sets `child.translatesAutoresizingMaskIntoConstraints = false`
+    /// 2. Calls `addSubview(child)` on this proxy's view
+    /// 3. Activates the given constraints on `child`, relative to this proxy's view
+    ///
+    /// ```swift
+    /// view.orbital.add(label, .top(16), .leading(16), .trailing(16))
+    /// view.orbital.add(imageView, .edges(4))
+    /// ```
+    ///
+    /// - Parameters:
+    ///   - child: The view to add as a subview.
+    ///   - items: One or more ``OrbitalConstraintConvertible`` values describing the child's constraints.
+    /// - Returns: All activated `OrbitalConstraint` instances, in declaration order.
+    /// - Note: Unlike ``layout(_:)-variadic``, the constraints belong to `child`, not to this proxy's
+    ///   view. Read them back through `child.orbital`.
+    @discardableResult
+    public func add(_ child: OrbitalView, _ items: any OrbitalConstraintConvertible...) -> [OrbitalConstraint] {
+        add(child, items)
+    }
+
+    /// Array-accepting overload of ``add(_:_:)-variadic``.
+    ///
+    /// Useful when the constraint list is built dynamically.
+    ///
+    /// ```swift
+    /// view.orbital.add(label, [.top(16), .leading(16), .trailing(16)])
+    /// ```
+    ///
+    /// - Parameters:
+    ///   - child: The view to add as a subview.
+    ///   - items: An array of ``OrbitalConstraintConvertible`` values describing the child's constraints.
+    /// - Returns: All activated `OrbitalConstraint` instances, in declaration order.
+    @discardableResult
+    public func add(_ child: OrbitalView, _ items: [any OrbitalConstraintConvertible]) -> [OrbitalConstraint] {
+        attach([child])
+        return child.orbital.layout(items)
+    }
+
+    /// Adds multiple child views to this proxy's view and runs a closure to apply constraints.
+    ///
+    /// All views are added as subviews (with `translatesAutoresizingMaskIntoConstraints = false`)
+    /// before the closure executes, so constraints between siblings are safe to create inside it.
+    ///
+    /// ```swift
+    /// view.orbital.add(avatar, nameLabel) {
+    ///     avatar.orbital.layout(.top(24), .leading(16), .size(80))
+    ///     nameLabel.orbital.layout(.top.to(avatar, .top), .leading(12).to(avatar, .trailing))
+    /// }
+    /// ```
+    ///
+    /// - Parameters:
+    ///   - children: One or more views to add as subviews.
+    ///   - layout: A closure executed after all children are added. Use it to apply constraints.
+    public func add(_ children: OrbitalView..., layout: @MainActor () -> Void) {
+        add(children, layout: layout)
+    }
+
+    /// Array-accepting overload of ``add(_:layout:)-variadic``.
+    ///
+    /// Useful when the array of child views is built dynamically.
+    ///
+    /// - Parameters:
+    ///   - children: An array of views to add as subviews.
+    ///   - layout: A closure executed after all children are added. Use it to apply constraints.
+    public func add(_ children: [OrbitalView], layout: @MainActor () -> Void) {
+        attach(children)
+        layout()
+    }
+
+    /// Adds this proxy's view as a subview of `parent` and activates constraints on it.
+    ///
+    /// Mirror of ``add(_:_:)-variadic`` called from the child's perspective.
+    ///
+    /// ```swift
+    /// label.orbital.add(to: view, .top(16), .leading(16), .trailing(16))
+    /// ```
+    ///
+    /// - Parameters:
+    ///   - parent: The view that will receive this proxy's view as a subview.
+    ///   - items: One or more ``OrbitalConstraintConvertible`` values.
+    /// - Returns: All activated `OrbitalConstraint` instances, in declaration order.
+    @discardableResult
+    public func add(to parent: OrbitalView, _ items: any OrbitalConstraintConvertible...) -> [OrbitalConstraint] {
+        add(to: parent, items)
+    }
+
+    /// Array-accepting overload of ``add(to:_:)-variadic``.
+    ///
+    /// Useful when the constraint list is built dynamically.
+    ///
+    /// ```swift
+    /// label.orbital.add(to: view, [.top(16), .leading(16), .trailing(16)])
+    /// ```
+    ///
+    /// - Parameters:
+    ///   - parent: The view that will receive this proxy's view as a subview.
+    ///   - items: An array of ``OrbitalConstraintConvertible`` values.
+    /// - Returns: All activated `OrbitalConstraint` instances, in declaration order.
+    @discardableResult
+    public func add(to parent: OrbitalView, _ items: [any OrbitalConstraintConvertible]) -> [OrbitalConstraint] {
+        guard let view else {
+            preconditionFailure("OrbitalLayout: OrbitalProxy's view has been deallocated.")
+        }
+        return parent.orbital.add(view, items)
+    }
+
+    /// Prepares `children` for Auto Layout and adds them as subviews of this proxy's view.
+    private func attach(_ children: [OrbitalView]) {
+        guard let view else {
+            preconditionFailure("OrbitalLayout: OrbitalProxy's view has been deallocated.")
+        }
+        for child in children {
+            child.translatesAutoresizingMaskIntoConstraints = false
+            view.addSubview(child)
+        }
+    }
+}
+
 // MARK: - OrbitalProxy Content Hugging / Compression Resistance
 
 extension OrbitalProxy {

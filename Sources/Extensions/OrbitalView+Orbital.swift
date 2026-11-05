@@ -54,9 +54,7 @@ public extension OrbitalView {
     ///   - items: One or more ``OrbitalConstraintConvertible`` values.
     @MainActor
     func orbit(add child: OrbitalView, _ items: any OrbitalConstraintConvertible...) {
-        child.translatesAutoresizingMaskIntoConstraints = false
-        addSubview(child)
-        child.orbital.layout(items)
+        orbital.add(child, items)
     }
 
     /// Array-accepting overload of ``orbit(add:_:)-variadic``.
@@ -74,9 +72,7 @@ public extension OrbitalView {
     ///   - items: An array of ``OrbitalConstraintConvertible`` values.
     @MainActor
     func orbit(add child: OrbitalView, _ items: [any OrbitalConstraintConvertible]) {
-        child.translatesAutoresizingMaskIntoConstraints = false
-        addSubview(child)
-        child.orbital.layout(items)
+        orbital.add(child, items)
     }
 
     /// Adds multiple child views and runs a closure to apply constraints.
@@ -100,11 +96,7 @@ public extension OrbitalView {
     /// - Note: The closure is called on the main actor, synchronously after all `addSubview` calls.
     @MainActor
     func orbit(_ children: OrbitalView..., layout: @MainActor () -> Void) {
-        for child in children {
-            child.translatesAutoresizingMaskIntoConstraints = false
-            addSubview(child)
-        }
-        layout()
+        orbital.add(children, layout: layout)
     }
 
     /// Array-accepting overload of ``orbit(_:layout:)-variadic``.
@@ -124,11 +116,7 @@ public extension OrbitalView {
     ///   - layout: A closure executed after all children are added.
     @MainActor
     func orbit(_ children: [OrbitalView], layout: @MainActor () -> Void) {
-        for child in children {
-            child.translatesAutoresizingMaskIntoConstraints = false
-            addSubview(child)
-        }
-        layout()
+        orbital.add(children, layout: layout)
     }
 
     /// Adds this view as a subview of `parent` and applies inline constraints.
@@ -152,9 +140,7 @@ public extension OrbitalView {
     ///   - items: One or more ``OrbitalConstraintConvertible`` values.
     @MainActor
     func orbit(to parent: OrbitalView, _ items: any OrbitalConstraintConvertible...) {
-        translatesAutoresizingMaskIntoConstraints = false
-        parent.addSubview(self)
-        orbital.layout(items)
+        orbital.add(to: parent, items)
     }
 
     /// Array-accepting overload of ``orbit(to:_:)-variadic``.
@@ -172,8 +158,6 @@ public extension OrbitalView {
     ///   - items: An array of ``OrbitalConstraintConvertible`` values.
     @MainActor
     func orbit(to parent: OrbitalView, _ items: [any OrbitalConstraintConvertible]) {
-        translatesAutoresizingMaskIntoConstraints = false
-        parent.addSubview(self)
-        orbital.layout(items)
+        orbital.add(to: parent, items)
     }
 }
