@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="12">
+<rect width="200" height="200" rx="6" fill="#DBEAFE"/>
+<rect x="40" y="40" width="120" height="120" rx="4" fill="#64748B"/>
+<text x="100" y="150" fill="#FFFFFF" text-anchor="middle">card</text>
+<rect x="100" y="60" width="40" height="40" rx="4" fill="#2563EB"/>
+<path d="M140 80H160M140 76v8M160 76v8" stroke="#FFFFFF" stroke-width="1.5" fill="none"/>
+<text x="150" y="72" fill="#FFFFFF" text-anchor="middle">20</text>
+<path d="M120 40V60M116 40h8M116 60h8" stroke="#FFFFFF" stroke-width="1.5" fill="none"/>
+<text x="127" y="54" fill="#FFFFFF">20</text>
+</svg>
