@@ -131,7 +131,8 @@ public struct OrbitalDescriptor {
     var label: String? = nil
     var signOverride: SignOverride? = nil  // nil = auto, .offset = force +, .inset = force -
     var targetIsSelf: Bool = false        // true = target is source view (used by aspectRatio, like(_ anchor:))
-    var likeWasCalled: Bool = false       // true = .like() set the target; used for DEBUG overwrite detection with .to()
+    var likeWasCalled: Bool = false       // true = .like() was called on this descriptor
+    var targetOverwrittenAfterLike: Bool = false  // true = .to() replaced the .like() target; triggers the DEBUG warning
     
     enum SignOverride: Sendable {
         case offset  // .asOffset — force positive constant
@@ -284,7 +285,7 @@ public final class OrbitalProxy {
     // update() — reads ONLY `anchor` and `constant` from each descriptor.
     // All other fields are intentionally ignored: relation, priority, targetView, targetGuide,
     // targetAnchor, multiplier, label, signOverride. Only the constant is updated on the
-    // existing stored constraint.
+    // existing stored constraint, multiplied by the sign the constraint had at creation.
     // Anchors with no stored constraint are silently skipped (constraint may have been removed via remake()).
     // Accepts OrbitalConstraintConvertible, so groups work: update(.edges(24)) updates all 4 edges.
     // #if DEBUG warnings:
@@ -293,10 +294,14 @@ public final class OrbitalProxy {
     //   - descriptor carries non-default modifiers (relation, priority, target, label, multiplier):
     //       print("OrbitalLayout: update() only changes constant — use remake() to change other properties")
     func update(_ items: OrbitalConstraintConvertible...)
-    // remake() — for each descriptor: deactivates existing constraint for that anchor+relation (if any),
-    // then creates and activates a new one. Works as "layout() scoped to specified anchors, with cleanup".
+    // remake() — deactivates every stored constraint on the provided anchors, whatever its relation,
+    // then creates and activates the new ones. Works as "layout() scoped to specified anchors, with cleanup".
     // If no previous constraint exists for a given anchor, a new one is created regardless.
+    // Relations listed in the same call coexist.
     @discardableResult func remake(_ items: OrbitalConstraintConvertible...) -> [OrbitalConstraint]
+
+    // remove() — deactivates and forgets constraints for the anchors. relation == nil means every relation.
+    func remove(_ anchors: OrbitalAnchor..., relation: OrbitalRelation? = nil)
     
     // --- Content priorities (Section 22) ---
     func hugging(_ priority: OrbitalPriority, axis: OrbitalAxis)
@@ -519,6 +524,8 @@ extension OrbitalDescriptorGroup {
     var orLess: OrbitalDescriptorGroup { ... }
     var orMore: OrbitalDescriptorGroup { ... }
     func labeled(_ id: String) -> OrbitalDescriptorGroup
+    func to(_ view: OrbitalView) -> OrbitalDescriptorGroup
+    func to(_ guide: OrbitalLayoutGuide) -> OrbitalDescriptorGroup
 }
 ```
 
@@ -552,9 +559,8 @@ extension OrbitalDescriptor {
     //
     // WARNING: .like() and .to() both set the target view. Do NOT use them together
     // on the same descriptor — only one target applies, last call wins.
-    // #if DEBUG: ConstraintFactory.make() prints a warning if both targetView and
-    // multiplier != 1 are set AND targetView was set via .to() after .like()
-    // (detected via a `likeWasCalled: Bool` flag on OrbitalDescriptor).
+    // #if DEBUG: ConstraintFactory.make() prints a warning if .to() replaced a target set by .like()
+    // (detected via the `targetOverwrittenAfterLike: Bool` flag on OrbitalDescriptor).
     func like(_ view: OrbitalView, _ multiplier: CGFloat = 1) -> OrbitalDescriptor
     func like(_ view: OrbitalView, _ anchor: OrbitalAnchor, _ multiplier: CGFloat = 1) -> OrbitalDescriptor
     func like(_ anchor: OrbitalAnchor, _ multiplier: CGFloat = 1) -> OrbitalDescriptor
@@ -570,16 +576,7 @@ extension OrbitalDescriptorGroup {
 }
 ```
 
-> **Design decision:** `OrbitalDescriptorGroup` intentionally does NOT support `.to()` or `.like()`. These modifiers set a target per-descriptor, and applying them to a group (e.g. `.edges().to(view, .top)`) creates ambiguous semantics — which anchor should the target map to for each edge? Use individual descriptors when targeting a specific view or guide:
-> ```swift
-> // .edges().to(safeArea) — NOT supported. Use individual descriptors:
-> view.orbital.layout(
->     .top.to(view.safeAreaLayoutGuide),
->     .bottom.to(view.safeAreaLayoutGuide),
->     .leading.to(view.safeAreaLayoutGuide),
->     .trailing.to(view.safeAreaLayoutGuide)
-> )
-> ```
+> **Design decision:** `OrbitalDescriptorGroup` supports `.to(view)` and `.to(guide)` without a target anchor, so each descriptor pins to its matching anchor: `.edges(16).to(view.safeAreaLayoutGuide)`. Passing an anchor (e.g. `.edges().to(view, .top)`) is intentionally unavailable because it is ambiguous, and `.like()` stays on individual descriptors. Safe area insets are asymmetric with vertical bars, so pinning all edges to a guide has to stay a one-liner.
 
 ---
 

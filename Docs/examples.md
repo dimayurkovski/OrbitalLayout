@@ -404,6 +404,7 @@ view.orbital.update(.width(100))   // no crash, just skipped
 
 ```swift
 // Update with groups — updates all 4 edge constants at once
+// Pass positive insets: bottom and trailing keep the negative sign from creation
 view.orbital.update(.edges(24))
 
 // update() reads ONLY anchor + constant — all other modifiers are ignored:
@@ -528,20 +529,16 @@ subtitleLabel.orbital.compression(.low, axis: .horizontal)
 view.orbital.layout(
     .top.to(view.safeAreaLayoutGuide, .top),
     .bottom.to(view.safeAreaLayoutGuide, .bottom),
-    .leading,
-    .trailing
+    .leading.to(view.safeAreaLayoutGuide, .leading),
+    .trailing.to(view.safeAreaLayoutGuide, .trailing)
 )
 ```
 
 ```swift
-// Note: .edges().to(safeArea) is NOT supported — group descriptors don't support .to().
-// Use individual descriptors to pin all edges to a layout guide:
-view.orbital.layout(
-    .top.to(view.safeAreaLayoutGuide),
-    .bottom.to(view.safeAreaLayoutGuide),
-    .leading.to(view.safeAreaLayoutGuide),
-    .trailing.to(view.safeAreaLayoutGuide)
-)
+// Groups pin every edge to the same edge of a layout guide
+view.orbital.layout(.edges(16).to(view.safeAreaLayoutGuide))
+view.orbital.layout(.horizontal(16).to(view.safeAreaLayoutGuide))
+view.orbital.layout(.center().to(view.safeAreaLayoutGuide))
 ```
 
 ---

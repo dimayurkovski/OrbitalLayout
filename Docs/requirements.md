@@ -215,6 +215,8 @@ Predefined values: `.required` (1000), `.high` (750), `.low` (250), `.custom(Flo
 .height.like(imageView)
 .height.like(otherView, .width, 0.5)   // height == otherView.width * 0.5
 .height.like(.width, 0.4)             // height == self.width * 0.4
+.width.like(view.safeAreaLayoutGuide, 0.5)          // width == safeArea.width * 0.5
+.height.like(view.safeAreaLayoutGuide, .width, 0.5) // height == safeArea.width * 0.5
 ```
 
 Only meaningful with `.like(...)` — multiplies the target value.
@@ -277,7 +279,13 @@ UIView.animate(withDuration: 0.3) {
 ```swift
 .top(16).to(view.safeAreaLayoutGuide, .top)
 .bottom(16).to(view.safeAreaLayoutGuide, .bottom)
+
+.edges(16).to(view.safeAreaLayoutGuide)
+.horizontal(16).to(view.safeAreaLayoutGuide)
+.center().to(view.safeAreaLayoutGuide)
 ```
+
+Groups accept `.to(view)` and `.to(guide)`: every edge pins to the same edge of the target. Insets can differ per edge, for example with a vertical bar on one side of the display.
 
 ---
 
@@ -387,6 +395,8 @@ view.orbital.update(
 
 Finds previously created constraints by anchor and updates their `constant`. Does not create new constraints. **Only `anchor` and `constant` are read from each descriptor** — all other fields (`relation`, `priority`, `target`, `label`, `multiplier`) are ignored. To change anything other than constant, use `remake()` instead.
 
+The constant keeps the sign the constraint had at creation, including `.asOffset` and `.asInset`: after `.trailing(16)`, `update(.trailing(24))` produces an inset of 24, and `update(.trailing(-8))` an overhang of 8. Moving a view to another superview deactivates its constraints; `update()` warns in DEBUG, and `layout()` must be called again.
+
 Accepts `OrbitalConstraintConvertible`, so groups work: `update(.edges(24))` updates all 4 edge constants at once.
 
 ### Remake — replaces matching constraints by anchor type
@@ -400,7 +410,17 @@ view.orbital.remake(
 )
 ```
 
-For each provided descriptor: deactivates the existing constraint for that `anchor + relation` (if any), then creates and activates a new one. If no previous constraint exists for a given anchor, a new one is created regardless — `remake()` works as "layout() scoped to the specified anchors, with automatic cleanup of prior constraints". Other Orbital constraints on this view are not affected.
+Deactivates every stored constraint on the provided anchors, whatever its relation, then creates and activates the new ones. To keep a minimum or maximum on the anchor, list it in the same call. If no previous constraint exists for a given anchor, a new one is created regardless — `remake()` works as "layout() scoped to the specified anchors, with automatic cleanup of prior constraints". Constraints on other anchors are not affected.
+
+### Remove — deactivates constraints and forgets them
+
+```swift
+view.orbital.remove(.top)                           // every relation on .top
+view.orbital.remove(.top, .bottom)
+view.orbital.remove(.width, relation: .lessOrEqual) // only that relation
+```
+
+Anchors without a stored constraint are skipped.
 
 Replaced constraints are deactivated and removed from `ConstraintStorage`. If they were captured by the caller, the objects remain in memory but are no longer managed by OrbitalLayout.
 

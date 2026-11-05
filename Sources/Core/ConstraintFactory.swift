@@ -178,6 +178,24 @@ enum ConstraintFactory {
         return constraint
     }
 
+    // MARK: - Constant sign
+
+    /// Returns the factor (`1` or `-1`) that ``make(from:for:)`` applies to the descriptor's constant.
+    ///
+    /// `OrbitalProxy` stores this value so that `update()` follows the same sign convention
+    /// as the initial layout, including `.asOffset` and `.asInset` overrides.
+    ///
+    /// - Parameter descriptor: The descriptor the constraint is created from.
+    /// - Returns: `-1` when the constant is negated, otherwise `1`.
+    static func constantSign(for descriptor: OrbitalDescriptor) -> CGFloat {
+        resolvedConstant(
+            for: descriptor.anchor,
+            targetAnchor: descriptor.targetAnchor ?? descriptor.anchor,
+            constant: 1,
+            signOverride: descriptor.signOverride
+        )
+    }
+
     // MARK: - Anchor compatibility
 
     /// Validates that `source` and `target` belong to the same axis group.
@@ -677,7 +695,7 @@ enum ConstraintFactory {
     /// Routes output through ``debugWarningHandler`` when set (for tests), otherwise uses `print`.
     private static func emitDebugWarnings(descriptor: OrbitalDescriptor, view: OrbitalView) {
         // Warn when .like() was called but then overwritten by a subsequent .to()
-        if descriptor.likeWasCalled && descriptor.targetView != nil && !descriptor.targetIsSelf {
+        if descriptor.targetOverwrittenAfterLike {
             emitWarning(
                 "OrbitalLayout [DEBUG]: .like() was called on descriptor for .\(descriptor.anchor), " +
                 "but .to() was called afterwards and overwrote the target. " +

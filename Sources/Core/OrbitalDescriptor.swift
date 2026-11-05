@@ -100,6 +100,11 @@ public struct OrbitalDescriptor: Sendable {
     /// called afterwards and overwrites the `.like()` target.
     public let likeWasCalled: Bool
 
+    /// Set to `true` when `.to()` replaced a target that `.like(...)` had set.
+    ///
+    /// Used in `#if DEBUG` mode by `ConstraintFactory` to warn about the overwrite.
+    public let targetOverwrittenAfterLike: Bool
+
     // MARK: - Initialiser
 
     /// Creates a fully-specified descriptor.
@@ -120,6 +125,7 @@ public struct OrbitalDescriptor: Sendable {
     ///   - signOverride: Overrides the auto-negation convention. Defaults to `nil`.
     ///   - targetIsSelf: Whether the target is the view itself. Defaults to `false`.
     ///   - likeWasCalled: Internal flag for debug warnings. Defaults to `false`.
+    ///   - targetOverwrittenAfterLike: Internal flag for debug warnings. Defaults to `false`.
     public init(
         anchor: OrbitalAnchor,
         constant: CGFloat = 0,
@@ -132,7 +138,8 @@ public struct OrbitalDescriptor: Sendable {
         label: String? = nil,
         signOverride: SignOverride? = nil,
         targetIsSelf: Bool = false,
-        likeWasCalled: Bool = false
+        likeWasCalled: Bool = false,
+        targetOverwrittenAfterLike: Bool = false
     ) {
         self.anchor = anchor
         self.constant = constant
@@ -146,6 +153,7 @@ public struct OrbitalDescriptor: Sendable {
         self.signOverride = signOverride
         self.targetIsSelf = targetIsSelf
         self.likeWasCalled = likeWasCalled
+        self.targetOverwrittenAfterLike = targetOverwrittenAfterLike
     }
 }
 
@@ -181,7 +189,8 @@ extension OrbitalDescriptor {
             label: label,
             signOverride: signOverride,
             targetIsSelf: false,
-            likeWasCalled: likeWasCalled
+            likeWasCalled: likeWasCalled,
+            targetOverwrittenAfterLike: likeWasCalled
         )
     }
 
@@ -209,7 +218,8 @@ extension OrbitalDescriptor {
             label: label,
             signOverride: signOverride,
             targetIsSelf: false,
-            likeWasCalled: likeWasCalled
+            likeWasCalled: likeWasCalled,
+            targetOverwrittenAfterLike: likeWasCalled
         )
     }
 
@@ -233,7 +243,8 @@ extension OrbitalDescriptor {
             label: label,
             signOverride: signOverride,
             targetIsSelf: targetIsSelf,
-            likeWasCalled: likeWasCalled
+            likeWasCalled: likeWasCalled,
+            targetOverwrittenAfterLike: targetOverwrittenAfterLike
         )
     }
 
@@ -256,7 +267,8 @@ extension OrbitalDescriptor {
             label: label,
             signOverride: signOverride,
             targetIsSelf: targetIsSelf,
-            likeWasCalled: likeWasCalled
+            likeWasCalled: likeWasCalled,
+            targetOverwrittenAfterLike: targetOverwrittenAfterLike
         )
     }
 
@@ -284,7 +296,8 @@ extension OrbitalDescriptor {
             label: label,
             signOverride: .offset,
             targetIsSelf: targetIsSelf,
-            likeWasCalled: likeWasCalled
+            likeWasCalled: likeWasCalled,
+            targetOverwrittenAfterLike: targetOverwrittenAfterLike
         )
     }
 
@@ -306,7 +319,8 @@ extension OrbitalDescriptor {
             label: label,
             signOverride: .inset,
             targetIsSelf: targetIsSelf,
-            likeWasCalled: likeWasCalled
+            likeWasCalled: likeWasCalled,
+            targetOverwrittenAfterLike: targetOverwrittenAfterLike
         )
     }
 
@@ -335,7 +349,8 @@ extension OrbitalDescriptor {
             label: label,
             signOverride: signOverride,
             targetIsSelf: targetIsSelf,
-            likeWasCalled: likeWasCalled
+            likeWasCalled: likeWasCalled,
+            targetOverwrittenAfterLike: targetOverwrittenAfterLike
         )
     }
 
@@ -366,7 +381,8 @@ extension OrbitalDescriptor {
             label: id,
             signOverride: signOverride,
             targetIsSelf: targetIsSelf,
-            likeWasCalled: likeWasCalled
+            likeWasCalled: likeWasCalled,
+            targetOverwrittenAfterLike: targetOverwrittenAfterLike
         )
     }
 
@@ -399,7 +415,8 @@ extension OrbitalDescriptor {
             label: label,
             signOverride: signOverride,
             targetIsSelf: false,
-            likeWasCalled: true
+            likeWasCalled: true,
+            targetOverwrittenAfterLike: false
         )
     }
 
@@ -427,7 +444,67 @@ extension OrbitalDescriptor {
             label: label,
             signOverride: signOverride,
             targetIsSelf: false,
-            likeWasCalled: true
+            likeWasCalled: true,
+            targetOverwrittenAfterLike: false
+        )
+    }
+
+    /// Constrains this anchor to a layout guide's matching anchor scaled by a multiplier.
+    ///
+    /// Use it to size a view relative to an area that excludes bars, such as the safe area.
+    ///
+    /// ```swift
+    /// .width.like(view.safeAreaLayoutGuide, 0.5)   // width == safeArea.width * 0.5
+    /// ```
+    ///
+    /// - Parameters:
+    ///   - guide: The target layout guide.
+    ///   - multiplier: Scale factor applied to the target anchor's value. Defaults to `1`.
+    /// - Returns: A new descriptor with the target guide and multiplier set.
+    public func like(_ guide: OrbitalLayoutGuide, _ multiplier: CGFloat = 1) -> OrbitalDescriptor {
+        OrbitalDescriptor(
+            anchor: anchor,
+            constant: constant,
+            relation: relation,
+            priority: priority,
+            targetView: nil,
+            targetGuide: guide,
+            targetAnchor: targetAnchor,
+            multiplier: multiplier,
+            label: label,
+            signOverride: signOverride,
+            targetIsSelf: false,
+            likeWasCalled: true,
+            targetOverwrittenAfterLike: false
+        )
+    }
+
+    /// Constrains this anchor to a **specific anchor** on a layout guide scaled by a multiplier.
+    ///
+    /// ```swift
+    /// .height.like(view.safeAreaLayoutGuide, .width, 0.5)   // height == safeArea.width * 0.5
+    /// ```
+    ///
+    /// - Parameters:
+    ///   - guide: The target layout guide.
+    ///   - anchor: The anchor on the target guide.
+    ///   - multiplier: Scale factor. Defaults to `1`.
+    /// - Returns: A new descriptor with the target guide, target anchor, and multiplier set.
+    public func like(_ guide: OrbitalLayoutGuide, _ anchor: OrbitalAnchor, _ multiplier: CGFloat = 1) -> OrbitalDescriptor {
+        OrbitalDescriptor(
+            anchor: self.anchor,
+            constant: constant,
+            relation: relation,
+            priority: priority,
+            targetView: nil,
+            targetGuide: guide,
+            targetAnchor: anchor,
+            multiplier: multiplier,
+            label: label,
+            signOverride: signOverride,
+            targetIsSelf: false,
+            likeWasCalled: true,
+            targetOverwrittenAfterLike: false
         )
     }
 
@@ -454,7 +531,8 @@ extension OrbitalDescriptor {
             label: label,
             signOverride: signOverride,
             targetIsSelf: true,
-            likeWasCalled: true
+            likeWasCalled: true,
+            targetOverwrittenAfterLike: false
         )
     }
 }
@@ -546,7 +624,7 @@ extension OrbitalDescriptor {
     ///
     /// - Parameter constant: The inset in points.
     /// - Returns: A descriptor for the top anchor.
-    public static func top(_ constant: CGFloat) -> OrbitalDescriptor {
+    public static func top(_ constant: CGFloat = 0) -> OrbitalDescriptor {
         OrbitalDescriptor(anchor: .top, constant: constant)
     }
 
@@ -561,7 +639,7 @@ extension OrbitalDescriptor {
     ///
     /// - Parameter constant: The inset in points (positive).
     /// - Returns: A descriptor for the bottom anchor.
-    public static func bottom(_ constant: CGFloat) -> OrbitalDescriptor {
+    public static func bottom(_ constant: CGFloat = 0) -> OrbitalDescriptor {
         OrbitalDescriptor(anchor: .bottom, constant: constant)
     }
 
@@ -573,7 +651,7 @@ extension OrbitalDescriptor {
     ///
     /// - Parameter constant: The inset in points.
     /// - Returns: A descriptor for the leading anchor.
-    public static func leading(_ constant: CGFloat) -> OrbitalDescriptor {
+    public static func leading(_ constant: CGFloat = 0) -> OrbitalDescriptor {
         OrbitalDescriptor(anchor: .leading, constant: constant)
     }
 
@@ -587,7 +665,7 @@ extension OrbitalDescriptor {
     ///
     /// - Parameter constant: The inset in points (positive).
     /// - Returns: A descriptor for the trailing anchor.
-    public static func trailing(_ constant: CGFloat) -> OrbitalDescriptor {
+    public static func trailing(_ constant: CGFloat = 0) -> OrbitalDescriptor {
         OrbitalDescriptor(anchor: .trailing, constant: constant)
     }
 
@@ -596,7 +674,7 @@ extension OrbitalDescriptor {
     /// - Note: Prefer ``leading(_:)`` for RTL-safe layouts.
     /// - Parameter constant: The inset in points.
     /// - Returns: A descriptor for the left anchor.
-    public static func left(_ constant: CGFloat) -> OrbitalDescriptor {
+    public static func left(_ constant: CGFloat = 0) -> OrbitalDescriptor {
         OrbitalDescriptor(anchor: .left, constant: constant)
     }
 
@@ -605,7 +683,7 @@ extension OrbitalDescriptor {
     /// - Note: Prefer ``trailing(_:)`` for RTL-safe layouts.
     /// - Parameter constant: The inset in points (positive).
     /// - Returns: A descriptor for the right anchor.
-    public static func right(_ constant: CGFloat) -> OrbitalDescriptor {
+    public static func right(_ constant: CGFloat = 0) -> OrbitalDescriptor {
         OrbitalDescriptor(anchor: .right, constant: constant)
     }
 
@@ -1003,6 +1081,36 @@ extension OrbitalDescriptorGroup {
 
 extension OrbitalDescriptorGroup {
 
+    /// Pins every descriptor in the group to the matching anchors of a view.
+    ///
+    /// Each edge is constrained to the same edge of `view`, and the sign convention is kept.
+    ///
+    /// ```swift
+    /// .horizontal(16).to(card)   // leading = card.leading + 16, trailing = card.trailing - 16
+    /// ```
+    ///
+    /// - Parameter view: The target view.
+    /// - Returns: A new group targeting `view`.
+    public func to(_ view: OrbitalView) -> OrbitalDescriptorGroup {
+        OrbitalDescriptorGroup(descriptors.map { $0.to(view) })
+    }
+
+    /// Pins every descriptor in the group to the matching anchors of a layout guide.
+    ///
+    /// Use it to keep content clear of bars. Safe area insets can differ on every edge, for
+    /// example when a vertical bar sits on one side of the display.
+    ///
+    /// ```swift
+    /// .edges(16).to(view.safeAreaLayoutGuide)
+    /// .center().to(view.safeAreaLayoutGuide)
+    /// ```
+    ///
+    /// - Parameter guide: The target layout guide.
+    /// - Returns: A new group targeting `guide`.
+    public func to(_ guide: OrbitalLayoutGuide) -> OrbitalDescriptorGroup {
+        OrbitalDescriptorGroup(descriptors.map { $0.to(guide) })
+    }
+
     /// Sets the layout priority on every descriptor in the group.
     ///
     /// ```swift
@@ -1092,17 +1200,17 @@ public extension OrbitalConstraintConvertible where Self == OrbitalDescriptor {
     // MARK: Edge anchors with constants
 
     /// Forwards to ``OrbitalDescriptor/top(_:)``.
-    static func top(_ constant: CGFloat) -> OrbitalDescriptor { .top(constant) }
+    static func top(_ constant: CGFloat = 0) -> OrbitalDescriptor { .top(constant) }
     /// Forwards to ``OrbitalDescriptor/bottom(_:)``.
-    static func bottom(_ constant: CGFloat) -> OrbitalDescriptor { .bottom(constant) }
+    static func bottom(_ constant: CGFloat = 0) -> OrbitalDescriptor { .bottom(constant) }
     /// Forwards to ``OrbitalDescriptor/leading(_:)``.
-    static func leading(_ constant: CGFloat) -> OrbitalDescriptor { .leading(constant) }
+    static func leading(_ constant: CGFloat = 0) -> OrbitalDescriptor { .leading(constant) }
     /// Forwards to ``OrbitalDescriptor/trailing(_:)``.
-    static func trailing(_ constant: CGFloat) -> OrbitalDescriptor { .trailing(constant) }
+    static func trailing(_ constant: CGFloat = 0) -> OrbitalDescriptor { .trailing(constant) }
     /// Forwards to ``OrbitalDescriptor/left(_:)``.
-    static func left(_ constant: CGFloat) -> OrbitalDescriptor { .left(constant) }
+    static func left(_ constant: CGFloat = 0) -> OrbitalDescriptor { .left(constant) }
     /// Forwards to ``OrbitalDescriptor/right(_:)``.
-    static func right(_ constant: CGFloat) -> OrbitalDescriptor { .right(constant) }
+    static func right(_ constant: CGFloat = 0) -> OrbitalDescriptor { .right(constant) }
 
     // MARK: Dimension anchors with constants
 

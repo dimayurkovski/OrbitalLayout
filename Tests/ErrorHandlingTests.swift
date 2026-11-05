@@ -215,13 +215,7 @@ struct ErrorHandlingTests {
         ConstraintFactory.debugWarningHandler = { warnings.append($0) }
         defer { ConstraintFactory.debugWarningHandler = nil }
 
-        let desc = OrbitalDescriptor(
-            anchor: .width,
-            constant: 0,
-            targetView: other,
-            multiplier: 0.5,
-            likeWasCalled: true
-        )
+        let desc = OrbitalDescriptor.width.like(parent, 0.5).to(other)
         // Simulates the same misused descriptor being rebuilt on every layout pass.
         for _ in 0..<5 {
             _ = ConstraintFactory.make(from: desc, for: child)
@@ -279,15 +273,7 @@ struct ErrorHandlingTests {
         ConstraintFactory.debugWarningHandler = { warnings.append($0) }
         defer { ConstraintFactory.debugWarningHandler = nil }
 
-        // likeWasCalled=true but targetView was set by .to() — simulates misuse
-        let desc = OrbitalDescriptor(
-            anchor: .width,
-            constant: 0,
-            targetView: other,
-            multiplier: 0.5,
-            likeWasCalled: true
-        )
-        _ = ConstraintFactory.make(from: desc, for: child)
+        _ = ConstraintFactory.make(from: .width.like(parent, 0.5).to(other), for: child)
 
         #expect(warnings.contains { $0.contains(".like()") && $0.contains(".to()") })
     }

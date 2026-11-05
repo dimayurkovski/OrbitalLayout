@@ -774,11 +774,9 @@ struct OrbitalProxyTests {
             proxy.update(OrbitalDescriptor.edges(24))
 
             #expect(proxy.topConstraint?.constant == 24)
-            // bottom/trailing are auto-negated by ConstraintFactory at creation time,
-            // but update() writes the raw constant from the descriptor directly
-            #expect(proxy.bottomConstraint?.constant == 24)
+            #expect(proxy.bottomConstraint?.constant == -24)
             #expect(proxy.leadingConstraint?.constant == 24)
-            #expect(proxy.trailingConstraint?.constant == 24)
+            #expect(proxy.trailingConstraint?.constant == -24)
         }
 
         @Test("update() skips anchors with no stored constraint — no crash")
@@ -832,9 +830,9 @@ struct OrbitalProxyTests {
             proxy.layout(.top(8), .bottom(8), .leading(8), .trailing(8))
             proxy.update(.edges(24))
             #expect(proxy.topConstraint?.constant == 24)
-            #expect(proxy.bottomConstraint?.constant == 24)
+            #expect(proxy.bottomConstraint?.constant == -24)
             #expect(proxy.leadingConstraint?.constant == 24)
-            #expect(proxy.trailingConstraint?.constant == 24)
+            #expect(proxy.trailingConstraint?.constant == -24)
         }
 
         @Test("update() on prepareLayout constraint — updates constant of inactive constraint")
@@ -1012,8 +1010,8 @@ struct OrbitalProxyTests {
             #expect(proxy.topConstraint !== prepared)
         }
 
-        @Test("remake() replaces only the .equal relation — non-equal on same anchor survives")
-        func remakeOnlyReplacesEqualRelation() {
+        @Test("remake() replaces every relation on the anchor")
+        func remakeReplacesAllRelations() {
             let (parent, child, proxy) = makeViewInHierarchy()
             _ = parent; _ = child
             proxy.layout(.width(100), .width(300).orLess)
@@ -1021,20 +1019,19 @@ struct OrbitalProxyTests {
             proxy.remake(.width(200))
             #expect(proxy.widthConstraint?.constant == 200)
             #expect(proxy.widthConstraint?.isActive == true)
-            #expect(proxy.constraint(for: .width, relation: .lessOrEqual) === lessOrEqual)
-            #expect(lessOrEqual?.isActive == true)
+            #expect(proxy.constraint(for: .width, relation: .lessOrEqual) == nil)
+            #expect(lessOrEqual?.isActive == false)
         }
 
-        @Test("remake() when only .lessOrEqual exists — adds .equal, both coexist")
-        func remakeAddsEqualWhenOnlyNonEqualExists() {
+        @Test("remake() when only .lessOrEqual exists — .equal replaces it")
+        func remakeEqualReplacesNonEqual() {
             let (parent, child, proxy) = makeViewInHierarchy()
             _ = parent; _ = child
             proxy.layout(.width(200).orLess)
             proxy.remake(.width(300))
             #expect(proxy.widthConstraint?.constant == 300)
             #expect(proxy.widthConstraint?.isActive == true)
-            #expect(proxy.constraint(for: .width, relation: .lessOrEqual)?.constant == 200)
-            #expect(proxy.constraint(for: .width, relation: .lessOrEqual)?.isActive == true)
+            #expect(proxy.constraint(for: .width, relation: .lessOrEqual) == nil)
         }
     }
 

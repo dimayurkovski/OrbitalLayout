@@ -22,6 +22,7 @@ iOS 15+ · tvOS 15+ · macOS 12+ · Swift 5.10+ · Xcode 15+
 - [Adding subviews](#adding-subviews)
 - [Constraints](#constraints)
 - [Stored constraints](#stored-constraints)
+- [Safe area](#safe-area)
 - [Update & remake](#update--remake)
 - [Activate / deactivate](#activate--deactivate)
 - [Hugging & compression](#hugging--compression)
@@ -135,19 +136,48 @@ view.orbital.constraint(for: .width, relation: .lessOrEqual)
 ```
 
 
+## Safe area
+
+Anchors pin to the superview by default, and the superview's edges can sit under bars. On iPhone Duo a vertical bar takes one side of the display, so pin content to the safe area on every edge, not only top and bottom.
+
+```swift
+let safeArea = view.safeAreaLayoutGuide
+
+// groups pin every edge to the guide; insets may differ per edge
+view.orbit(add: content, .edges(16).to(safeArea))
+view.orbit(add: footer, .horizontal(16).to(safeArea), .bottom(16).to(safeArea, .bottom))
+view.orbit(add: spinner, .center().to(safeArea))
+
+// sizes relative to the guide
+view.orbit(add: column, .width.like(safeArea, 0.5))
+```
+
+Use the superview only for full-bleed backgrounds.
+
+
 ## Update & remake
 
 ```swift
 // update — change `constant` on existing constraints; no-op if anchor has no stored constraint
+// pass the same positive inset as in layout(): the sign from creation is kept
 view.orbital.update(.top(24), .height(300))
 view.orbital.update(.edges(24))
 
-// remake — deactivate and replace constraints for the specified anchors; others untouched
+// remake — deactivate and replace every constraint on the specified anchors; others untouched
 view.orbital.remake(
     .top.to(navigationBar, .bottom),
     .height(120)
 )
+
+// list a minimum or maximum in the same call to keep it
+bar.orbital.remake(.width.like(track, 0.5).priority(.high), .width(8).orMore)
+
+// remove — deactivate and forget constraints; every relation unless one is given
+view.orbital.remove(.top)
+view.orbital.remove(.width, relation: .lessOrEqual)
 ```
+
+After moving a view to another superview, call `layout()` again: `update()` cannot revive constraints to the old superview.
 
 
 ## Activate / deactivate
@@ -204,27 +234,29 @@ view.orbital.layout(
 Every view is in the hierarchy before the closure runs, so cross-references work without ordering tricks.
 
 ```swift
+let safeArea = view.safeAreaLayoutGuide
+
 view.orbit(avatar, nameLabel, followButton) {
     avatar.orbital.layout(
-        .top(24).to(view.safeAreaLayoutGuide, .top),
-        .leading(16),
+        .top(24).to(safeArea, .top),
+        .leading(16).to(safeArea, .leading),
         .size(80)
     )
     nameLabel.orbital.layout(
         .top.to(avatar, .top),
         .leading(12).to(avatar, .trailing),
-        .trailing(16)
+        .trailing(16).to(safeArea, .trailing)
     )
     followButton.orbital.layout(
         .top(16).to(nameLabel, .bottom),
-        .leading(16), .trailing(16),
+        .horizontal(16).to(safeArea),
         .height(44)
     )
 }
 
 // view controller — same closure form, forwards to controller.view
 controller.orbit(avatar, nameLabel) {
-    avatar.orbital.layout(.top(24), .leading(16), .size(80))
+    avatar.orbital.layout(.top(24).to(safeArea, .top), .leading(16).to(safeArea, .leading), .size(80))
     nameLabel.orbital.layout(.top.to(avatar, .top), .leading(12).to(avatar, .trailing))
 }
 ```

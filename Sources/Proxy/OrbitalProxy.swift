@@ -81,7 +81,7 @@ public final class OrbitalProxy {
         }
         let constraint = ConstraintFactory.make(from: descriptor, for: view)
         constraint.isActive = true
-        view.orbitalStorage.store(constraint, for: descriptor.anchor, relation: descriptor.relation)
+        store(constraint, from: descriptor, in: view)
         return constraint
     }
 
@@ -92,8 +92,19 @@ public final class OrbitalProxy {
             preconditionFailure("OrbitalLayout: OrbitalProxy's view has been deallocated.")
         }
         let constraint = ConstraintFactory.make(from: descriptor, for: view)
-        view.orbitalStorage.store(constraint, for: descriptor.anchor, relation: descriptor.relation)
+        store(constraint, from: descriptor, in: view)
         return constraint
+    }
+
+    /// Stores `constraint` with the sign and superview it was created with.
+    private func store(_ constraint: OrbitalConstraint, from descriptor: OrbitalDescriptor, in view: OrbitalView) {
+        view.orbitalStorage.store(
+            constraint,
+            for: descriptor.anchor,
+            relation: descriptor.relation,
+            constantSign: ConstraintFactory.constantSign(for: descriptor),
+            superview: view.superview
+        )
     }
 
     // MARK: - Single Constraint Shortcuts
@@ -524,14 +535,17 @@ extension OrbitalProxy {
     /// (`relation`, `priority`, `target`, `label`, `multiplier`) are silently ignored.
     /// The lookup always targets the `.equal` relation constraint for each anchor.
     ///
+    /// The constant follows the same sign as the constraint had at creation, so pass the same
+    /// positive inset you would pass to ``layout(_:)-variadic``.
+    ///
     /// If no stored constraint exists for a given anchor, the descriptor is skipped without error.
     ///
     /// ```swift
     /// // Initial layout
-    /// view.orbital.layout(.top(16), .height(200))
+    /// view.orbital.layout(.top(16), .trailing(16), .height(200))
     ///
     /// // Update constants only — no new constraints created
-    /// view.orbital.update(.top(24), .height(300))
+    /// view.orbital.update(.top(24), .trailing(24), .height(300))
     /// ```
     ///
     /// Accepts ``OrbitalConstraintConvertible``, so group descriptors work:
@@ -542,6 +556,8 @@ extension OrbitalProxy {
     ///   descriptors (`.top(24)`) and group shortcuts (`.edges(24)`) interchangeably.
     /// - Note: To change anything other than `constant` (relation, priority, target anchor),
     ///   use ``remake(_:)`` instead.
+    /// - Note: Moving a view to another superview deactivates its constraints to the old one.
+    ///   `update()` cannot revive them, so call ``layout(_:)-variadic`` after reparenting.
     public func update(_ items: any OrbitalConstraintConvertible...) {
         performUpdate(items.flatMap { $0.asDescriptors() })
     }
@@ -557,13 +573,16 @@ extension OrbitalProxy {
     private func performUpdate(_ descriptors: [OrbitalDescriptor]) {
         guard let storage else { return }
         for descriptor in descriptors {
-            guard let existing = storage.get(descriptor.anchor) else {
+            guard let entry = storage.entry(descriptor.anchor) else {
                 #if DEBUG
                 emitUpdateWarning("OrbitalLayout [DEBUG]: update() skipped anchor .\(descriptor.anchor) — no stored constraint found.")
                 #endif
                 continue
             }
             #if DEBUG
+            if !entry.constraint.isActive, view?.superview !== entry.superview {
+                emitUpdateWarning("OrbitalLayout [DEBUG]: update() changed an inactive constraint on .\(descriptor.anchor) — the view's superview changed since it was created. Use layout() to recreate it.")
+            }
             if descriptor.relation != .equal {
                 emitUpdateWarning("OrbitalLayout [DEBUG]: update() ignoring non-default relation modifier on .\(descriptor.anchor) — only constant is updated.")
             }
@@ -574,7 +593,7 @@ extension OrbitalProxy {
                 emitUpdateWarning("OrbitalLayout [DEBUG]: update() ignoring target modifier on .\(descriptor.anchor) — only constant is updated.")
             }
             #endif
-            existing.constant = descriptor.constant
+            entry.constraint.constant = entry.constantSign * descriptor.constant
         }
     }
 
@@ -596,9 +615,10 @@ extension OrbitalProxy {
 
     /// Replaces existing constraints matching the given descriptors with newly created ones.
     ///
-    /// For each descriptor, the existing constraint for that `anchor + relation` combination (if any)
-    /// is deactivated and removed from storage, then a new constraint is created, activated, and stored.
-    /// If no previous constraint exists for a given anchor, a new one is created regardless.
+    /// Every stored constraint on the mentioned anchors is deactivated and removed from storage,
+    /// whatever its relation, then new constraints are created, activated, and stored. To keep a
+    /// minimum or maximum on the anchor, list it in the same call. If no previous constraint exists
+    /// for a given anchor, a new one is created regardless.
     ///
     /// Constraints for anchors **not** mentioned in the call are not affected.
     ///
@@ -611,6 +631,9 @@ extension OrbitalProxy {
     ///
     /// // Remake with a different target
     /// contentView.orbital.remake(.top.to(navigationBar, .bottom))
+    ///
+    /// // Replace the width and keep a minimum
+    /// bar.orbital.remake(.width.like(track, 0.5).priority(.high), .width(8).orMore)
     /// ```
     ///
     /// - Parameter items: One or more ``OrbitalConstraintConvertible`` values describing
@@ -620,14 +643,44 @@ extension OrbitalProxy {
     ///   If previously captured by the caller, the objects remain in memory but are no longer
     ///   managed by OrbitalLayout.
     public func remake(_ items: any OrbitalConstraintConvertible...) {
-        items.flatMap { $0.asDescriptors() }.forEach { makeActivateStore($0) }
+        performRemake(items.flatMap { $0.asDescriptors() })
     }
 
     /// Array-accepting overload of ``remake(_:)-variadic``.
     ///
     /// - Parameter items: An array of ``OrbitalConstraintConvertible`` values.
     public func remake(_ items: [any OrbitalConstraintConvertible]) {
-        items.flatMap { $0.asDescriptors() }.forEach { makeActivateStore($0) }
+        performRemake(items.flatMap { $0.asDescriptors() })
+    }
+
+    /// Core implementation shared by all `remake()` overloads.
+    private func performRemake(_ descriptors: [OrbitalDescriptor]) {
+        for anchor in Set(descriptors.map(\.anchor)) {
+            storage?.remove(anchor).forEach { $0.isActive = false }
+        }
+        descriptors.forEach { makeActivateStore($0) }
+    }
+
+    // MARK: - remove()
+
+    /// Deactivates stored constraints for the given anchors and removes them from storage.
+    ///
+    /// Use it when a constraint has to go away rather than change. To replace a constraint,
+    /// use ``remake(_:)``. Anchors without a stored constraint are skipped.
+    ///
+    /// ```swift
+    /// view.orbital.remove(.top)                           // every relation on .top
+    /// view.orbital.remove(.width, relation: .lessOrEqual) // only that relation
+    /// ```
+    ///
+    /// - Parameters:
+    ///   - anchors: The anchors whose constraints should be removed.
+    ///   - relation: The relation to remove. Defaults to `nil`, which removes every relation.
+    public func remove(_ anchors: OrbitalAnchor..., relation: OrbitalRelation? = nil) {
+        guard let storage else { return }
+        for anchor in anchors {
+            storage.remove(anchor, relation: relation).forEach { $0.isActive = false }
+        }
     }
 }
 

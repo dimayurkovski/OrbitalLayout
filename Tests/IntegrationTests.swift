@@ -316,13 +316,10 @@ struct IntegrationTests {
 
             panel.orbital.update(OrbitalDescriptor.edges(24))
 
-            // update() sets constant directly without auto-negation.
-            // The existing constraints for bottom/trailing already hold negative values;
-            // update() just overwrites the constant field with the provided value.
             #expect(panel.orbital.topConstraint?.constant == 24)
-            #expect(panel.orbital.bottomConstraint?.constant == 24)
+            #expect(panel.orbital.bottomConstraint?.constant == -24)
             #expect(panel.orbital.leadingConstraint?.constant == 24)
-            #expect(panel.orbital.trailingConstraint?.constant == 24)
+            #expect(panel.orbital.trailingConstraint?.constant == -24)
         }
     }
 
