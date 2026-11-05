@@ -288,16 +288,16 @@ Insets on `trailing` and `bottom` are positive and still point inward. In `.cent
 
 <table>
 <tr>
-<td align="center" valign="top"><img src="Docs/images/layout/edges.svg" width="200" height="200" alt=".edges(20)"><br><code>.edges(20)</code></td>
-<td align="center" valign="top"><img src="Docs/images/layout/top-leading.svg" width="200" height="200" alt=".top(20), .leading(20), .size(60)"><br><code>.top(20), .leading(20)</code><br><code>.size(60)</code></td>
+<td width="400" align="center" valign="top"><img src="Docs/images/layout/edges.svg" width="200" height="200" alt=".edges(20)"><br><code>.edges(20)</code></td>
+<td width="400" align="center" valign="top"><img src="Docs/images/layout/top-leading.svg" width="200" height="200" alt=".top(20), .leading(20), .size(60)"><br><code>.top(20), .leading(20)</code><br><code>.size(60)</code></td>
 </tr>
 <tr>
-<td align="center" valign="top"><img src="Docs/images/layout/bottom-trailing.svg" width="200" height="200" alt=".bottom(20), .trailing(20), .size(60)"><br><code>.bottom(20), .trailing(20)</code><br><code>.size(60)</code></td>
-<td align="center" valign="top"><img src="Docs/images/layout/horizontal.svg" width="200" height="200" alt=".horizontal(20), .centerY(), .height(60)"><br><code>.horizontal(20)</code><br><code>.centerY(), .height(60)</code></td>
+<td width="400" align="center" valign="top"><img src="Docs/images/layout/bottom-trailing.svg" width="200" height="200" alt=".bottom(20), .trailing(20), .size(60)"><br><code>.bottom(20), .trailing(20)</code><br><code>.size(60)</code></td>
+<td width="400" align="center" valign="top"><img src="Docs/images/layout/horizontal.svg" width="200" height="200" alt=".horizontal(20), .centerY(), .height(60)"><br><code>.horizontal(20)</code><br><code>.centerY(), .height(60)</code></td>
 </tr>
 <tr>
-<td align="center" valign="top"><img src="Docs/images/layout/vertical.svg" width="200" height="200" alt=".vertical(20), .centerX(), .width(60)"><br><code>.vertical(20)</code><br><code>.centerX(), .width(60)</code></td>
-<td align="center" valign="top"><img src="Docs/images/layout/top-bar.svg" width="200" height="200" alt=".top(20), .horizontal(20), .height(40)"><br><code>.top(20), .horizontal(20)</code><br><code>.height(40)</code></td>
+<td width="400" align="center" valign="top"><img src="Docs/images/layout/vertical.svg" width="200" height="200" alt=".vertical(20), .centerX(), .width(60)"><br><code>.vertical(20)</code><br><code>.centerX(), .width(60)</code></td>
+<td width="400" align="center" valign="top"><img src="Docs/images/layout/top-bar.svg" width="200" height="200" alt=".top(20), .horizontal(20), .height(40)"><br><code>.top(20), .horizontal(20)</code><br><code>.height(40)</code></td>
 </tr>
 </table>
 
@@ -305,12 +305,12 @@ Insets on `trailing` and `bottom` are positive and still point inward. In `.cent
 
 <table>
 <tr>
-<td align="center" valign="top"><img src="Docs/images/layout/center.svg" width="200" height="200" alt=".center(), .size(80)"><br><code>.center()</code><br><code>.size(80)</code></td>
-<td align="center" valign="top"><img src="Docs/images/layout/center-x.svg" width="200" height="200" alt=".centerX(), .top(20), .size(60)"><br><code>.centerX()</code><br><code>.top(20), .size(60)</code></td>
+<td width="400" align="center" valign="top"><img src="Docs/images/layout/center.svg" width="200" height="200" alt=".center(), .size(80)"><br><code>.center()</code><br><code>.size(80)</code></td>
+<td width="400" align="center" valign="top"><img src="Docs/images/layout/center-x.svg" width="200" height="200" alt=".centerX(), .top(20), .size(60)"><br><code>.centerX()</code><br><code>.top(20), .size(60)</code></td>
 </tr>
 <tr>
-<td align="center" valign="top"><img src="Docs/images/layout/center-y.svg" width="200" height="200" alt=".centerY(), .leading(20), .size(60)"><br><code>.centerY()</code><br><code>.leading(20), .size(60)</code></td>
-<td align="center" valign="top"><img src="Docs/images/layout/center-offset.svg" width="200" height="200" alt=".center(offset: CGPoint(x: 40, y: -40)), .size(40)"><br><code>.center(offset: CGPoint(x: 40, y: -40))</code><br><code>.size(40)</code></td>
+<td width="400" align="center" valign="top"><img src="Docs/images/layout/center-y.svg" width="200" height="200" alt=".centerY(), .leading(20), .size(60)"><br><code>.centerY()</code><br><code>.leading(20), .size(60)</code></td>
+<td width="400" align="center" valign="top"><img src="Docs/images/layout/center-offset.svg" width="200" height="200" alt=".center(offset: CGPoint(x: 40, y: -40)), .size(40)"><br><code>.center(offset: CGPoint(x: 40, y: -40))</code><br><code>.size(40)</code></td>
 </tr>
 </table>
 
@@ -318,12 +318,12 @@ Insets on `trailing` and `bottom` are positive and still point inward. In `.cent
 
 <table>
 <tr>
-<td align="center" valign="top"><img src="Docs/images/layout/size.svg" width="200" height="200" alt=".size(width: 120, height: 40), .center()"><br><code>.size(width: 120, height: 40)</code><br><code>.center()</code></td>
-<td align="center" valign="top"><img src="Docs/images/layout/aspect-ratio.svg" width="200" height="200" alt=".aspectRatio(16.0 / 9.0), .top(20), .horizontal(20)"><br><code>.aspectRatio(16.0 / 9.0)</code><br><code>.top(20), .horizontal(20)</code></td>
+<td width="400" align="center" valign="top"><img src="Docs/images/layout/size.svg" width="200" height="200" alt=".size(width: 120, height: 40), .center()"><br><code>.size(width: 120, height: 40)</code><br><code>.center()</code></td>
+<td width="400" align="center" valign="top"><img src="Docs/images/layout/aspect-ratio.svg" width="200" height="200" alt=".aspectRatio(16.0 / 9.0), .top(20), .horizontal(20)"><br><code>.aspectRatio(16.0 / 9.0)</code><br><code>.top(20), .horizontal(20)</code></td>
 </tr>
 <tr>
-<td align="center" valign="top"><img src="Docs/images/layout/width-like.svg" width="200" height="200" alt=".width.like(superview, 0.5), .vertical, .leading"><br><code>.width.like(superview, 0.5)</code><br><code>.vertical, .leading</code></td>
-<td align="center" valign="top"><img src="Docs/images/layout/height-like-width.svg" width="200" height="200" alt=".height.like(.width, 0.5), .width(120), .center()"><br><code>.height.like(.width, 0.5)</code><br><code>.width(120), .center()</code></td>
+<td width="400" align="center" valign="top"><img src="Docs/images/layout/width-like.svg" width="200" height="200" alt=".width.like(superview, 0.5), .vertical, .leading"><br><code>.width.like(superview, 0.5)</code><br><code>.vertical, .leading</code></td>
+<td width="400" align="center" valign="top"><img src="Docs/images/layout/height-like-width.svg" width="200" height="200" alt=".height.like(.width, 0.5), .width(120), .center()"><br><code>.height.like(.width, 0.5)</code><br><code>.width(120), .center()</code></td>
 </tr>
 </table>
 
@@ -331,16 +331,16 @@ Insets on `trailing` and `bottom` are positive and still point inward. In `.cent
 
 <table>
 <tr>
-<td align="center" valign="top"><img src="Docs/images/layout/below.svg" width="200" height="200" alt=".top(20).to(header, .bottom), .horizontal(20), .height(60)"><br><code>.top(20).to(header, .bottom)</code><br><code>.horizontal(20), .height(60)</code></td>
-<td align="center" valign="top"><img src="Docs/images/layout/above.svg" width="200" height="200" alt=".bottom(20).to(footer, .top), .horizontal(20), .height(60)"><br><code>.bottom(20).to(footer, .top)</code><br><code>.horizontal(20), .height(60)</code></td>
+<td width="400" align="center" valign="top"><img src="Docs/images/layout/below.svg" width="200" height="200" alt=".top(20).to(header, .bottom), .horizontal(20), .height(60)"><br><code>.top(20).to(header, .bottom)</code><br><code>.horizontal(20), .height(60)</code></td>
+<td width="400" align="center" valign="top"><img src="Docs/images/layout/above.svg" width="200" height="200" alt=".bottom(20).to(footer, .top), .horizontal(20), .height(60)"><br><code>.bottom(20).to(footer, .top)</code><br><code>.horizontal(20), .height(60)</code></td>
 </tr>
 <tr>
-<td align="center" valign="top"><img src="Docs/images/layout/beside.svg" width="200" height="200" alt=".leading(20).to(avatar, .trailing), .top.to(avatar, .top), .trailing(20), .height(60)"><br><code>.leading(20).to(avatar, .trailing)</code><br><code>.top.to(avatar, .top)</code><br><code>.trailing(20), .height(60)</code></td>
-<td align="center" valign="top"><img src="Docs/images/layout/align-center.svg" width="200" height="200" alt=".centerY().to(avatar, .centerY), .leading(20).to(avatar, .trailing), .size(40)"><br><code>.centerY().to(avatar, .centerY)</code><br><code>.leading(20).to(avatar, .trailing)</code><br><code>.size(40)</code></td>
+<td width="400" align="center" valign="top"><img src="Docs/images/layout/beside.svg" width="200" height="200" alt=".leading(20).to(avatar, .trailing), .top.to(avatar, .top), .trailing(20), .height(60)"><br><code>.leading(20).to(avatar, .trailing)</code><br><code>.top.to(avatar, .top)</code><br><code>.trailing(20), .height(60)</code></td>
+<td width="400" align="center" valign="top"><img src="Docs/images/layout/align-center.svg" width="200" height="200" alt=".centerY().to(avatar, .centerY), .leading(20).to(avatar, .trailing), .size(40)"><br><code>.centerY().to(avatar, .centerY)</code><br><code>.leading(20).to(avatar, .trailing)</code><br><code>.size(40)</code></td>
 </tr>
 <tr>
-<td align="center" valign="top"><img src="Docs/images/layout/inset.svg" width="200" height="200" alt=".trailing(20).to(card, .trailing), .top(20).to(card, .top), .size(40)"><br><code>.trailing(20).to(card, .trailing)</code><br><code>.top(20).to(card, .top)</code><br><code>.size(40)</code></td>
-<td align="center" valign="top"><img src="Docs/images/layout/as-offset.svg" width="200" height="200" alt=".trailing(20).to(card, .trailing).asOffset, .top(20).to(card, .top), .size(40)"><br><code>.trailing(20).to(card, .trailing).asOffset</code><br><code>.top(20).to(card, .top)</code><br><code>.size(40)</code></td>
+<td width="400" align="center" valign="top"><img src="Docs/images/layout/inset.svg" width="200" height="200" alt=".trailing(20).to(card, .trailing), .top(20).to(card, .top), .size(40)"><br><code>.trailing(20).to(card, .trailing)</code><br><code>.top(20).to(card, .top)</code><br><code>.size(40)</code></td>
+<td width="400" align="center" valign="top"><img src="Docs/images/layout/as-offset.svg" width="200" height="200" alt=".trailing(20).to(card, .trailing).asOffset, .top(20).to(card, .top), .size(40)"><br><code>.trailing(20).to(card, .trailing).asOffset</code><br><code>.top(20).to(card, .top)</code><br><code>.size(40)</code></td>
 </tr>
 </table>
 
